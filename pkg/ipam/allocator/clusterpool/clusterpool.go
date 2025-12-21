@@ -21,6 +21,7 @@ import (
 	"github.com/cilium/cilium/pkg/trigger"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var log = logging.DefaultLogger.WithField(logfields.LogSubsys, "ipam-allocator-clusterpool")
@@ -29,26 +30,107 @@ var log = logging.DefaultLogger.WithField(logfields.LogSubsys, "ipam-allocator-c
 // IPAM.
 type AllocatorOperator struct {
 	v4CIDRSet, v6CIDRSet []cidralloc.CIDRAllocator
-	groupV4CIDRSet       map[string][]cidralloc.CIDRAllocator
+	labelBasedV4CIDRSet  *LabelBasedClusterPoolAllocators
 }
-type Config struct {
-	Groups []Group `yaml:"groups"`
+
+type LabelBasedClusterPoolConfigRaw struct {
+	DefaultCIDRPools        []string                 `json:"defaultCIDRPools" yaml:"defaultCIDRPools"`
+	NodeLabelAllocationsRaw []NodeLabelAllocationRaw `json:"nodeLabelAllocations" yaml:"nodeLabelAllocations"`
 }
-type Group struct {
-	Name  string   `yaml:"name"`
-	CIDRs []string `yaml:"cidr"`
+
+type NodeLabelAllocationRaw struct {
+	Selector  *metav1.LabelSelector `json:"selector" yaml:"selector"`
+	CIDRPools []string              `json:"cidrPools" yaml:"cidrPools"`
+}
+
+type LabelBasedClusterPoolAllocators struct {
+	DefaultV4Allocators []cidralloc.CIDRAllocator
+	NodeLabelAllocators []NodeLabelAllocator
+}
+
+type NodeLabelAllocator struct {
+	Selector     *metav1.LabelSelector
+	V4Allocators []cidralloc.CIDRAllocator
+}
+
+func BuildLabelBasedClusterPool(raw *LabelBasedClusterPoolConfigRaw, v4Allocators []cidralloc.CIDRAllocator) (*LabelBasedClusterPoolAllocators, error) {
+	defaultV4Allocators := make([]cidralloc.CIDRAllocator, 0)
+	for _, allocator := range v4Allocators {
+		for _, defaultCIDR := range raw.DefaultCIDRPools {
+			p, err := netip.ParsePrefix(defaultCIDR)
+			if err != nil {
+				return nil, fmt.Errorf("unable to parse default cidr: %w", err)
+			}
+			if allocator.IsClusterCIDR(p) {
+				defaultV4Allocators = append(defaultV4Allocators, allocator)
+			}
+		}
+
+	}
+
+	nodeLabelAllocations := make([]NodeLabelAllocator, 0)
+	for _, r := range raw.NodeLabelAllocationsRaw {
+		labelAllocators := make([]cidralloc.CIDRAllocator, 0)
+		for _, labelCIDR := range r.CIDRPools {
+			p, err := netip.ParsePrefix(labelCIDR)
+			if err != nil {
+				return nil, fmt.Errorf("unable to parse default cidr: %w", err)
+			}
+			for _, allocator := range v4Allocators {
+
+			}
+
+		}
+		allocator, err := cidralloc.NewCIDRSets(false, r.CIDRPools, operatorOption.Config.NodeCIDRMaskSizeIPv4)
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize IPv4 allocator: %w", err)
+		}
+		nodeLabelAllocations = append(nodeLabelAllocations, NodeLabelAllocator{
+			Selector:     r.Selector,
+			V4Allocators: allocator,
+		})
+	}
+
+	for _, g := range cfg.Groups {
+		if _, ok := groupV4CIDRSet[g.Name]; !ok {
+			groupV4CIDRSet[g.Name] = make([]cidralloc.CIDRAllocator, 0)
+		}
+		for _, cidr := range g.CIDRs {
+
+			p, err := netip.ParsePrefix(cidr)
+			if err != nil {
+				// handle error
+			}
+			for _, allocator := range v4Allocators {
+				if allocator.IsClusterCIDR(p) {
+					groupV4CIDRSet[g.Name] = append(groupV4CIDRSet[g.Name], allocator)
+				}
+			}
+		}
+	}
+
+	defaultV4Allocators, err := cidralloc.NewCIDRSets(false, raw.DefaultCIDRPools, operatorOption.Config.NodeCIDRMaskSizeIPv4)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize IPv4 allocator: %w", err)
+	}
+
+	for _, r := range raw.NodeLabelAllocationsRaw {
+		allocator, err := cidralloc.NewCIDRSets(false, r.CIDRPools, operatorOption.Config.NodeCIDRMaskSizeIPv4)
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize IPv4 allocator: %w", err)
+		}
+		nodeLabelAllocations = append(nodeLabelAllocations, NodeLabelAllocator{
+			Selector:     r.Selector,
+			V4Allocators: allocator,
+		})
+	}
+
+	return &LabelBasedClusterPoolAllocators{defaultV4Allocators, nodeLabelAllocations}, nil
 }
 
 // Init sets up Cilium allocator based on given options
 func (a *AllocatorOperator) Init(ctx context.Context) error {
-	fmt.Printf("## AllocatorOperator init: %+v \n", operatorOption.Config.CustomCIDR)
-
-	groupV4CIDRSet := make(map[string][]cidralloc.CIDRAllocator, 0)
-
-	var cfg Config
-	if err := yaml.Unmarshal([]byte(operatorOption.Config.CustomCIDR), &cfg); err != nil {
-		panic(err)
-	}
+	fmt.Printf("## AllocatorOperator init: %+v \n", operatorOption.Config.LabelBasedClusterPool)
 
 	if option.Config.EnableIPv4 {
 		if len(operatorOption.Config.ClusterPoolIPv4CIDR) == 0 {
@@ -60,24 +142,17 @@ func (a *AllocatorOperator) Init(ctx context.Context) error {
 			return fmt.Errorf("unable to initialize IPv4 allocator: %w", err)
 		}
 
-		for _, g := range cfg.Groups {
-			if _, ok := groupV4CIDRSet[g.Name]; !ok {
-				groupV4CIDRSet[g.Name] = make([]cidralloc.CIDRAllocator, 0)
+		if operatorOption.Config.LabelBasedClusterPool != "" {
+			var cfg *LabelBasedClusterPoolConfigRaw
+			if err := yaml.Unmarshal([]byte(operatorOption.Config.LabelBasedClusterPool), &cfg); err != nil {
+				return fmt.Errorf("unable to unmarsal LabelBasedClusterPool: %w", err)
 			}
-			for _, cidr := range g.CIDRs {
-
-				p, err := netip.ParsePrefix(cidr)
-				if err != nil {
-					// handle error
-				}
-				for _, allocator := range v4Allocators {
-					if allocator.IsClusterCIDR(p) {
-						groupV4CIDRSet[g.Name] = append(groupV4CIDRSet[g.Name], allocator)
-					}
-				}
+			labelAllocator, err := BuildLabelBasedClusterPool(cfg)
+			if err != nil {
+				return fmt.Errorf("unable to initialize label-based allocator: %w", err)
 			}
+			a.labelBasedV4CIDRSet = labelAllocator
 		}
-		a.groupV4CIDRSet = groupV4CIDRSet
 
 		a.v4CIDRSet = v4Allocators
 	} else if len(operatorOption.Config.ClusterPoolIPv4CIDR) != 0 {
@@ -118,7 +193,7 @@ func (a *AllocatorOperator) Start(ctx context.Context, updater ipam.CiliumNodeGe
 		iMetrics = &ipamMetrics.NoOpMetricsObserver{}
 	}
 
-	nodeManager := podcidr.NewNodesPodCIDRManager(a.groupV4CIDRSet, a.v4CIDRSet, a.v6CIDRSet, updater, iMetrics)
+	nodeManager := podcidr.NewNodesPodCIDRManager(a.labelBasedV4CIDRSet, a.v4CIDRSet, a.v6CIDRSet, updater, iMetrics)
 
 	return nodeManager, nil
 }

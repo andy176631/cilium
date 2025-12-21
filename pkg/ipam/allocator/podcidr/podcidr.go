@@ -12,10 +12,12 @@ import (
 	"github.com/sirupsen/logrus"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 
+	operatorOption "github.com/cilium/cilium/operator/option"
 	"github.com/cilium/cilium/pkg/cidr"
 	"github.com/cilium/cilium/pkg/controller"
 	ipPkg "github.com/cilium/cilium/pkg/ip"
 	"github.com/cilium/cilium/pkg/ipam"
+	"github.com/cilium/cilium/pkg/ipam/allocator/clusterpool"
 	"github.com/cilium/cilium/pkg/ipam/allocator/clusterpool/cidralloc"
 	v2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 	"github.com/cilium/cilium/pkg/lock"
@@ -170,8 +172,9 @@ type NodesPodCIDRManager struct {
 	// map to allocate podCIDRs for the missing nodes.
 	nodesToAllocate map[string]*v2.CiliumNode
 	// v4CIDRAllocators contains the CIDRs for IPv4 addresses
-	v4CIDRAllocators      []cidralloc.CIDRAllocator
-	groupV4CIDRAllocators map[string][]cidralloc.CIDRAllocator
+	v4CIDRAllocators     []cidralloc.CIDRAllocator
+	labelBasedAllocators *clusterpool.LabelBasedClusterPoolAllocators
+	//groupV4CIDRAllocators map[string][]cidralloc.CIDRAllocator
 
 	// v6CIDRAllocators contains the CIDRs for IPv6 addresses
 	v6CIDRAllocators []cidralloc.CIDRAllocator
@@ -186,19 +189,19 @@ type NodesPodCIDRManager struct {
 // Both v4Allocators and v6Allocators can be nil, but not at the same time.
 // nodeGetter will be used to populate synced node status / spec with
 // kubernetes.
-func NewNodesPodCIDRManager(groupV4Allocators map[string][]cidralloc.CIDRAllocator,
+func NewNodesPodCIDRManager(labelBasedAllocators *clusterpool.LabelBasedClusterPoolAllocators,
 	v4Allocators, v6Allocators []cidralloc.CIDRAllocator,
 	nodeGetter ipam.CiliumNodeGetterUpdater,
 	triggerMetrics trigger.MetricsObserver) *NodesPodCIDRManager {
 
 	n := &NodesPodCIDRManager{
-		nodesToAllocate:       map[string]*v2.CiliumNode{},
-		v4CIDRAllocators:      v4Allocators,
-		groupV4CIDRAllocators: groupV4Allocators,
-		v6CIDRAllocators:      v6Allocators,
-		nodes:                 map[string]*nodeCIDRs{},
-		ciliumNodesToK8s:      map[string]*ciliumNodeK8sOp{},
-		k8sReSyncController:   controller.NewManager(),
+		nodesToAllocate:      map[string]*v2.CiliumNode{},
+		v4CIDRAllocators:     v4Allocators,
+		labelBasedAllocators: labelBasedAllocators,
+		v6CIDRAllocators:     v6Allocators,
+		nodes:                map[string]*nodeCIDRs{},
+		ciliumNodesToK8s:     map[string]*ciliumNodeK8sOp{},
+		k8sReSyncController:  controller.NewManager(),
 	}
 
 	// Have a trigger so that multiple calls, within a second, to sync with k8s
@@ -812,10 +815,6 @@ func (n *NodesPodCIDRManager) allocateNext(node *v2.CiliumNode) (*nodeCIDRs, boo
 		revertStack revert.RevertStack
 		revertFunc  revert.RevertFunc
 	)
-	nodeGroup, ok := node.GetLabels()["ipam-group"]
-	if !ok {
-		nodeGroup = "default"
-	}
 
 	defer func() {
 		// Revert any operation made so far in case any of them failed.
@@ -832,9 +831,16 @@ func (n *NodesPodCIDRManager) allocateNext(node *v2.CiliumNode) (*nodeCIDRs, boo
 	// Only allocate a v4 CIDR if the v4CIDR allocator is available
 	if len(n.v4CIDRAllocators) != 0 {
 
+		n.groupV4CIDRAllocators
 		if _, ok := n.groupV4CIDRAllocators[nodeGroup]; !ok {
 			// TODO
 			return nil, false, err
+		}
+		n.labelBasedClusterPoolConfig.DefaultCIDRPools
+		n.labelBasedClusterPoolConfig
+
+		if operatorOption.Config.LabelBasedClusterPool != "" {
+
 		}
 
 		revertFunc, v4CIDR, err = allocateFirstFreeCIDR(n.groupV4CIDRAllocators[nodeGroup])
