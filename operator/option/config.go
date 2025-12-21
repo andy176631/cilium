@@ -103,7 +103,7 @@ const (
 	// ClusterPoolIPv4CIDR is the cluster's IPv4 CIDR to allocate
 	// individual PodCIDR ranges from when using the ClusterPool ipam mode.
 	ClusterPoolIPv4CIDR = "cluster-pool-ipv4-cidr"
-
+	
 	// ClusterPoolIPv6CIDR is the cluster's IPv6 CIDR to allocate
 	// individual PodCIDR ranges from when using the ClusterPool ipam mode.
 	ClusterPoolIPv6CIDR = "cluster-pool-ipv6-cidr"
@@ -231,6 +231,7 @@ const (
 	// PodRestartSelector specify the labels contained in the pod that needs to be restarted before the node can be de-stained
 	// default values: k8s-app=kube-dns
 	PodRestartSelector = "pod-restart-selector"
+	CustomCIDR = "custom-cidr"
 )
 
 // OperatorConfig is the configuration used by the operator.
@@ -413,10 +414,12 @@ type OperatorConfig struct {
 
 	// PodRestartSelector specify the labels contained in the pod that needs to be restarted before the node can be de-stained
 	PodRestartSelector string
+	CustomCIDR string
 }
 
 // Populate sets all options with the values from viper.
 func (c *OperatorConfig) Populate(vp *viper.Viper) {
+	c.CustomCIDR = vp.GetString(CustomCIDR)
 	c.NodesGCInterval = vp.GetDuration(NodesGCInterval)
 	c.EnableMetrics = vp.GetBool(EnableMetrics)
 	c.EndpointGCInterval = vp.GetDuration(EndpointGCInterval)

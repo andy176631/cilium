@@ -239,17 +239,18 @@ func TestNodesPodCIDRManager_Delete(t *testing.T) {
 			},
 		},
 	}
-
+	var aa string
 	for _, tt := range tests {
 		tt.fields = tt.testSetup()
 		n := &NodesPodCIDRManager{
-			k8sReSyncController: tt.fields.k8sReSyncController,
-			k8sReSync:           tt.fields.k8sReSync,
-			canAllocatePodCIDRs: tt.fields.canAllocateNodes,
-			v4CIDRAllocators:    tt.fields.v4ClusterCIDRs,
-			v6CIDRAllocators:    tt.fields.v6ClusterCIDRs,
-			nodes:               tt.fields.nodes,
-			ciliumNodesToK8s:    tt.fields.ciliumNodesToK8s,
+			k8sReSyncController:   tt.fields.k8sReSyncController,
+			k8sReSync:             tt.fields.k8sReSync,
+			canAllocatePodCIDRs:   tt.fields.canAllocateNodes,
+			v4CIDRAllocators:      tt.fields.v4ClusterCIDRs,
+			groupV4CIDRAllocators: nil,
+			v6CIDRAllocators:      tt.fields.v6ClusterCIDRs,
+			nodes:                 tt.fields.nodes,
+			ciliumNodesToK8s:      tt.fields.ciliumNodesToK8s,
 		}
 		n.Delete(tt.args.node)
 

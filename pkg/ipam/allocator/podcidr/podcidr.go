@@ -170,7 +170,9 @@ type NodesPodCIDRManager struct {
 	// map to allocate podCIDRs for the missing nodes.
 	nodesToAllocate map[string]*v2.CiliumNode
 	// v4CIDRAllocators contains the CIDRs for IPv4 addresses
-	v4CIDRAllocators []cidralloc.CIDRAllocator
+	v4CIDRAllocators      []cidralloc.CIDRAllocator
+	groupV4CIDRAllocators map[string][]cidralloc.CIDRAllocator
+
 	// v6CIDRAllocators contains the CIDRs for IPv6 addresses
 	v6CIDRAllocators []cidralloc.CIDRAllocator
 	// nodes maps a node name to the CIDRs allocated for that node
@@ -184,18 +186,19 @@ type NodesPodCIDRManager struct {
 // Both v4Allocators and v6Allocators can be nil, but not at the same time.
 // nodeGetter will be used to populate synced node status / spec with
 // kubernetes.
-func NewNodesPodCIDRManager(
+func NewNodesPodCIDRManager(groupV4Allocators map[string][]cidralloc.CIDRAllocator,
 	v4Allocators, v6Allocators []cidralloc.CIDRAllocator,
 	nodeGetter ipam.CiliumNodeGetterUpdater,
 	triggerMetrics trigger.MetricsObserver) *NodesPodCIDRManager {
 
 	n := &NodesPodCIDRManager{
-		nodesToAllocate:     map[string]*v2.CiliumNode{},
-		v4CIDRAllocators:    v4Allocators,
-		v6CIDRAllocators:    v6Allocators,
-		nodes:               map[string]*nodeCIDRs{},
-		ciliumNodesToK8s:    map[string]*ciliumNodeK8sOp{},
-		k8sReSyncController: controller.NewManager(),
+		nodesToAllocate:       map[string]*v2.CiliumNode{},
+		v4CIDRAllocators:      v4Allocators,
+		groupV4CIDRAllocators: groupV4Allocators,
+		v6CIDRAllocators:      v6Allocators,
+		nodes:                 map[string]*nodeCIDRs{},
+		ciliumNodesToK8s:      map[string]*ciliumNodeK8sOp{},
+		k8sReSyncController:   controller.NewManager(),
 	}
 
 	// Have a trigger so that multiple calls, within a second, to sync with k8s
@@ -448,7 +451,7 @@ func (n *NodesPodCIDRManager) allocateNode(node *v2.CiliumNode) (cn *v2.CiliumNo
 		}
 
 		// Allocate the next free CIDRs
-		cidrs, allocated, err = n.allocateNext(node.GetName())
+		cidrs, allocated, err = n.allocateNext(node)
 		if err != nil {
 			// We want to log this error in cilium node
 			updateStatus = true
@@ -796,9 +799,10 @@ func allocateIPNet(allType allocatorType, cidrSets []cidralloc.CIDRAllocator, ne
 // re-allocated, for example in the case the node had already allocated CIDRs.
 // In case an error is returned no CIDRs were allocated.
 // Needs n.Mutex to be held.
-func (n *NodesPodCIDRManager) allocateNext(nodeName string) (*nodeCIDRs, bool, error) {
+func (n *NodesPodCIDRManager) allocateNext(node *v2.CiliumNode) (*nodeCIDRs, bool, error) {
 	// If this node had already allocated CIDRs then returned the already
 	// allocated CIDRs
+	nodeName := node.GetName()
 	if cidrs, ok := n.nodes[nodeName]; ok {
 		return cidrs, false, nil
 	}
@@ -808,6 +812,10 @@ func (n *NodesPodCIDRManager) allocateNext(nodeName string) (*nodeCIDRs, bool, e
 		revertStack revert.RevertStack
 		revertFunc  revert.RevertFunc
 	)
+	nodeGroup, ok := node.GetLabels()["ipam-group"]
+	if !ok {
+		nodeGroup = "default"
+	}
 
 	defer func() {
 		// Revert any operation made so far in case any of them failed.
@@ -823,7 +831,13 @@ func (n *NodesPodCIDRManager) allocateNext(nodeName string) (*nodeCIDRs, bool, e
 
 	// Only allocate a v4 CIDR if the v4CIDR allocator is available
 	if len(n.v4CIDRAllocators) != 0 {
-		revertFunc, v4CIDR, err = allocateFirstFreeCIDR(n.v4CIDRAllocators)
+
+		if _, ok := n.groupV4CIDRAllocators[nodeGroup]; !ok {
+			// TODO
+			return nil, false, err
+		}
+
+		revertFunc, v4CIDR, err = allocateFirstFreeCIDR(n.groupV4CIDRAllocators[nodeGroup])
 		if err != nil {
 			return nil, false, err
 		}

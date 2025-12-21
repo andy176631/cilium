@@ -6,8 +6,7 @@ package clusterpool
 import (
 	"context"
 	"fmt"
-
-	"github.com/sirupsen/logrus"
+	"net/netip"
 
 	operatorOption "github.com/cilium/cilium/operator/option"
 	"github.com/cilium/cilium/pkg/ipam"
@@ -20,6 +19,8 @@ import (
 	"github.com/cilium/cilium/pkg/metrics"
 	"github.com/cilium/cilium/pkg/option"
 	"github.com/cilium/cilium/pkg/trigger"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 var log = logging.DefaultLogger.WithField(logfields.LogSubsys, "ipam-allocator-clusterpool")
@@ -28,10 +29,27 @@ var log = logging.DefaultLogger.WithField(logfields.LogSubsys, "ipam-allocator-c
 // IPAM.
 type AllocatorOperator struct {
 	v4CIDRSet, v6CIDRSet []cidralloc.CIDRAllocator
+	groupV4CIDRSet       map[string][]cidralloc.CIDRAllocator
+}
+type Config struct {
+	Groups []Group `yaml:"groups"`
+}
+type Group struct {
+	Name  string   `yaml:"name"`
+	CIDRs []string `yaml:"cidr"`
 }
 
 // Init sets up Cilium allocator based on given options
 func (a *AllocatorOperator) Init(ctx context.Context) error {
+	fmt.Printf("## AllocatorOperator init: %+v \n", operatorOption.Config.CustomCIDR)
+
+	groupV4CIDRSet := make(map[string][]cidralloc.CIDRAllocator, 0)
+
+	var cfg Config
+	if err := yaml.Unmarshal([]byte(operatorOption.Config.CustomCIDR), &cfg); err != nil {
+		panic(err)
+	}
+
 	if option.Config.EnableIPv4 {
 		if len(operatorOption.Config.ClusterPoolIPv4CIDR) == 0 {
 			return fmt.Errorf("%s must be provided when using ClusterPool", operatorOption.ClusterPoolIPv4CIDR)
@@ -41,6 +59,26 @@ func (a *AllocatorOperator) Init(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("unable to initialize IPv4 allocator: %w", err)
 		}
+
+		for _, g := range cfg.Groups {
+			if _, ok := groupV4CIDRSet[g.Name]; !ok {
+				groupV4CIDRSet[g.Name] = make([]cidralloc.CIDRAllocator, 0)
+			}
+			for _, cidr := range g.CIDRs {
+
+				p, err := netip.ParsePrefix(cidr)
+				if err != nil {
+					// handle error
+				}
+				for _, allocator := range v4Allocators {
+					if allocator.IsClusterCIDR(p) {
+						groupV4CIDRSet[g.Name] = append(groupV4CIDRSet[g.Name], allocator)
+					}
+				}
+			}
+		}
+		a.groupV4CIDRSet = groupV4CIDRSet
+
 		a.v4CIDRSet = v4Allocators
 	} else if len(operatorOption.Config.ClusterPoolIPv4CIDR) != 0 {
 		return fmt.Errorf("%s must not be set if IPv4 is disabled", operatorOption.ClusterPoolIPv4CIDR)
@@ -80,7 +118,7 @@ func (a *AllocatorOperator) Start(ctx context.Context, updater ipam.CiliumNodeGe
 		iMetrics = &ipamMetrics.NoOpMetricsObserver{}
 	}
 
-	nodeManager := podcidr.NewNodesPodCIDRManager(a.v4CIDRSet, a.v6CIDRSet, updater, iMetrics)
+	nodeManager := podcidr.NewNodesPodCIDRManager(a.groupV4CIDRSet, a.v4CIDRSet, a.v6CIDRSet, updater, iMetrics)
 
 	return nodeManager, nil
 }
