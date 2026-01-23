@@ -9,13 +9,13 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	daemonCmd "github.com/cilium/cilium/daemon/cmd"
 	operatorCmd "github.com/cilium/cilium/operator/cmd"
 	"github.com/cilium/cilium/pkg/hive"
-	"github.com/cilium/cilium/pkg/logging"
 	"github.com/cilium/cilium/pkg/option"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func validateConfigmapCmd() *cobra.Command {
@@ -53,8 +53,8 @@ func validateUnrecognizedKeys(configMapDir string) error {
 		return err
 	}
 
-	daemonCmd.InitGlobalFlags(logging.DefaultSlogLogger, &cobra.Command{}, dh.Viper())
-	operatorCmd.InitGlobalFlags(logging.DefaultSlogLogger, &cobra.Command{}, oh.Viper())
+	daemonCmd.InitGlobalFlags(log, &cobra.Command{}, dh.Viper())
+	operatorCmd.InitGlobalFlags(log, &cobra.Command{}, oh.Viper())
 
 	for _, hook := range operatorCmd.FlagsHooks {
 		hook.RegisterProviderFlag(&cobra.Command{}, oh.Viper())
