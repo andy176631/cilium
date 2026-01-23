@@ -8,7 +8,7 @@ Validate Cilium ConfigMap for unrecognized keys in the daemon and operator.
 
 Before upgrading Cilium, it is recommended to run this validation checker to 
 ensure that the deployed Cilium ConfigMap is valid. The validator verifies that all configuration
-keys are recognized by both the deamon and the operator. If any unrecognized keys are found, an
+keys are recognized by both the daemon and the operator. If any unrecognized keys are found, an
 error is printed and the command exits with a non-zero status code.
 
 ```
