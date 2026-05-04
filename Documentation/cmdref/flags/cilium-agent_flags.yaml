@@ -1,0 +1,1722 @@
+- name: agent-health-port
+  default: "9879"
+  usage: TCP port for agent health status API
+- name: agent-health-require-k8s-connectivity
+  default: "true"
+  usage: Require Kubernetes connectivity in agent health endpoint
+- name: agent-labels
+  default: '[]'
+  usage: Additional labels to identify this agent in monitor events
+- name: agent-liveness-update-interval
+  default: 1s
+  usage: Interval at which the agent updates liveness time for the datapath
+- name: agent-not-ready-taint-key
+  default: node.cilium.io/agent-not-ready
+  usage: Key of the taint indicating that Cilium is not ready on the node
+- name: alibabacloud-security-group-tags
+  default: '[]'
+  usage: List of tags to use when evaluating what security groups to use for the ENI
+    at the node level
+- name: alibabacloud-security-groups
+  default: '[]'
+  usage: List of security groups to attach to any ENI that is created and attached
+    to the instance at the node level
+- name: alibabacloud-vswitch-tags
+  default: '[]'
+  usage: List of tags to use when evaluating what VSwitches to use for ENI and IP
+    allocation at the node level
+- name: alibabacloud-vswitches
+  default: '[]'
+  usage: List of VSwitches to use for ENI and IP allocation at the node level
+- name: allocator-list-timeout
+  default: 3m0s
+  usage: Timeout for listing allocator state before exiting
+- name: allow-icmp-frag-needed
+  default: "true"
+  usage: Allow ICMP Fragmentation Needed type packets for purposes like TCP Path MTU.
+- name: allow-localhost
+  default: auto
+  usage: Policy when to allow local stack to reach local endpoints { auto | always
+    | policy }
+- name: allow-unsafe-policy-skb-usage
+  default: "false"
+  usage: Allow the daemon to continue to operate even if conflicting clustermesh ID
+    configuration is detected which may impact the ability for Cilium to enforce network
+    policy both within and across clusters
+- name: annotate-k8s-node
+  default: "false"
+  usage: Annotate Kubernetes node
+- name: api-rate-limit
+  default: ""
+  usage: 'API rate limiting configuration (example: --api-rate-limit endpoint-create=rate-limit:10/m,rate-burst:2)'
+- name: auto-create-cilium-node-resource
+  default: "true"
+  usage: Automatically create CiliumNode resource for own node on startup
+- name: auto-direct-node-routes
+  default: "false"
+  usage: Enable automatic L2 routing between nodes
+- name: azure-interface-name
+  default: ""
+  usage: InterfaceName the cilium-operator will use to allocate all the IPs on at
+    the node level
+- name: bgp-router-id-allocation-ip-pool
+  default: ""
+  usage: IP pool to allocate the BGP router-id from when the mode is 'ip-pool'
+- name: bgp-router-id-allocation-mode
+  default: default
+  usage: 'BGP router-id allocation mode. Currently supported values: ''default'' or
+    ''ip-pool'''
+- name: boot-id-file
+  default: /proc/sys/kernel/random/boot_id
+  usage: Path to filename of the boot ID
+- name: bpf-auth-map-max
+  default: "524288"
+  usage: Maximum number of entries in auth map
+- name: bpf-conntrack-accounting
+  default: "false"
+  usage: Enable CT accounting for packets and bytes (default false)
+- name: bpf-ct-global-any-max
+  default: "262144"
+  usage: Maximum number of entries in non-TCP CT table
+- name: bpf-ct-global-tcp-max
+  default: "524288"
+  usage: Maximum number of entries in TCP CT table
+- name: bpf-ct-timeout-regular-any
+  default: 1m0s
+  usage: Timeout for entries in non-TCP CT table
+- name: bpf-ct-timeout-regular-tcp
+  default: 2h13m20s
+  usage: Timeout for established entries in TCP CT table
+- name: bpf-ct-timeout-regular-tcp-fin
+  default: 10s
+  usage: Teardown timeout for entries in TCP CT table
+- name: bpf-ct-timeout-regular-tcp-syn
+  default: 1m0s
+  usage: Establishment timeout for entries in TCP CT table
+- name: bpf-ct-timeout-service-any
+  default: 1m0s
+  usage: Timeout for service entries in non-TCP CT table
+- name: bpf-ct-timeout-service-tcp
+  default: 2h13m20s
+  usage: Timeout for established service entries in TCP CT table
+- name: bpf-ct-timeout-service-tcp-grace
+  default: 1m0s
+  usage: Timeout for graceful shutdown of service entries in TCP CT table
+- name: bpf-distributed-lru
+  default: "false"
+  usage: Enable per-CPU BPF LRU backend memory
+- name: bpf-events-default-burst-limit
+  default: "0"
+  usage: Maximum number of messages that can be written to BPF events map in 1 second
+    (if set, --bpf-events-default-rate-limit value must also be specified). If both
+    --bpf-events-default-burst-limit and --bpf-events-default-rate-limit are 0 or
+    not specified, no limit is imposed.
+- name: bpf-events-default-rate-limit
+  default: "0"
+  usage: Limit of average number of messages per second that can be written to BPF
+    events map (if set, --bpf-events-default-burst-limit value must also be specified).
+    If both --bpf-events-default-rate-limit and --bpf-events-default-burst-limit are
+    0 or not specified, no limit is imposed.
+- name: bpf-events-drop-enabled
+  default: "true"
+  usage: Expose 'drop' events for Cilium monitor and/or Hubble
+- name: bpf-events-policy-verdict-enabled
+  default: "true"
+  usage: Expose 'policy verdict' events for Cilium monitor and/or Hubble
+- name: bpf-events-trace-enabled
+  default: "true"
+  usage: Expose 'trace' events for Cilium monitor and/or Hubble
+- name: bpf-filter-priority
+  default: "1"
+  usage: Priority of TC BPF filter
+- name: bpf-fragments-map-max
+  default: "8192"
+  usage: Maximum number of entries in fragments tracking map
+- name: bpf-lb-acceleration
+  default: disabled
+  usage: BPF load balancing acceleration via XDP ("native", "disabled")
+- name: bpf-lb-affinity-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for session affinities (if
+    this isn't set, the value of --bpf-lb-map-max will be used.)
+- name: bpf-lb-algorithm
+  default: random
+  usage: BPF load balancing algorithm ("random", "maglev")
+- name: bpf-lb-algorithm-annotation
+  default: "false"
+  usage: Enable service-level annotation for configuring BPF load balancing algorithm
+- name: bpf-lb-dsr-dispatch
+  default: opt
+  usage: BPF load balancing DSR dispatch method ("opt", "ipip", "geneve")
+- name: bpf-lb-external-clusterip
+  default: "false"
+  usage: Enable external access to ClusterIP services (default false)
+- name: bpf-lb-ipip-sock-mark
+  default: "false"
+  usage: BPF load balancing logic to force socket marked traffic via IPIP
+- name: bpf-lb-maglev-hash-seed
+  default: JLfvgnHc2kaSUFaI
+  usage: Maglev cluster-wide hash seed (base64 encoded)
+- name: bpf-lb-maglev-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for maglev (if this isn't set,
+    the value of --bpf-lb-map-max will be used.)
+- name: bpf-lb-maglev-table-size
+  default: "16381"
+  usage: 'Maglev per service backend table size (parameter M, one of: [251 509 1021
+    2039 4093 8191 16381 32749 65521 131071])'
+- name: bpf-lb-map-max
+  default: "65536"
+  usage: Maximum number of entries in Cilium BPF lbmap
+- name: bpf-lb-mode
+  default: snat
+  usage: BPF load balancing mode ("snat", "dsr", "hybrid")
+- name: bpf-lb-mode-annotation
+  default: "false"
+  usage: Enable service-level annotation for configuring BPF load balancing mode
+- name: bpf-lb-nat46x64
+  default: "false"
+  usage: BPF load balancing support for NAT46 and NAT64
+- name: bpf-lb-rev-nat-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for reverse NAT (if this isn't
+    set, the value of --bpf-lb-map-max will be used.)
+- name: bpf-lb-rss-ipv4-src-cidr
+  default: ""
+  usage: BPF load balancing RSS outer source IPv4 CIDR prefix for IPIP
+- name: bpf-lb-rss-ipv6-src-cidr
+  default: ""
+  usage: BPF load balancing RSS outer source IPv6 CIDR prefix for IPIP
+- name: bpf-lb-service-backend-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for service backends (if this
+    isn't set, the value of --bpf-lb-map-max will be used.)
+- name: bpf-lb-service-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for services (if this isn't
+    set, the value of --bpf-lb-map-max will be used.)
+- name: bpf-lb-sock
+  default: "false"
+  usage: Enable socket-based LB for E/W traffic
+- name: bpf-lb-sock-hostns-only
+  default: "false"
+  usage: Skip socket LB for services when inside a pod namespace, in favor of service
+    LB at the pod interface. Socket LB is still used when in the host namespace. Required
+    by service mesh (e.g., Istio, Linkerd).
+- name: bpf-lb-sock-terminate-pod-connections
+  default: "true"
+  usage: Enable terminating connections to deleted service backends when socket-LB
+    is enabled
+- name: bpf-lb-source-range-all-types
+  default: "false"
+  usage: Propagate loadbalancerSourceRanges to all corresponding service types
+- name: bpf-lb-source-range-map-max
+  default: "0"
+  usage: Maximum number of entries in Cilium BPF lbmap for source ranges (if this
+    isn't set, the value of --bpf-lb-map-max will be used.)
+- name: bpf-map-dynamic-size-ratio
+  default: "0.0025"
+  usage: Ratio (0.0-1.0] of total system memory to use for dynamic sizing of CT, NAT
+    and policy BPF maps
+- name: bpf-map-event-buffers
+  default: ""
+  usage: 'Configuration for BPF map event buffers: (example: --bpf-map-event-buffers
+    cilium_ipcache_v2=enabled_1024_1h)'
+- name: bpf-nat-global-max
+  default: "524288"
+  usage: Maximum number of entries for the global BPF NAT table
+- name: bpf-neigh-global-max
+  default: "524288"
+  usage: Maximum number of entries for the global BPF neighbor table
+- name: bpf-node-map-max
+  default: "16384"
+  usage: Sets size of node bpf map which will be the max number of unique Node IPs
+    in the cluster
+- name: bpf-policy-map-full-reconciliation-interval
+  default: 15m0s
+  usage: Interval for full reconciliation of endpoint policy map
+- name: bpf-policy-map-max
+  default: "16384"
+  usage: Maximum number of entries in endpoint policy map (per endpoint)
+- name: bpf-policy-map-pressure-metrics-threshold
+  default: "0.1"
+  usage: Sets threshold for emitting pressure metrics of policy maps
+- name: bpf-policy-stats-map-max
+  default: "65536"
+  usage: Maximum number of entries in bpf policy stats map
+- name: bpf-root
+  default: ""
+  usage: Path to BPF filesystem
+- name: bpf-sock-rev-map-max
+  default: "0"
+  usage: Maximum number of entries for the SockRevNAT BPF map
+- name: bypass-ip-availability-upon-restore
+  default: "false"
+  usage: Bypasses the IP availability error within IPAM upon endpoint restore
+- name: certificates-directory
+  default: /var/run/cilium/certs
+  usage: Root directory to find certificates specified in L7 TLS policy enforcement
+- name: cgroup-root
+  default: ""
+  usage: Path to Cgroup2 filesystem
+- name: cluster-health-port
+  default: "4240"
+  usage: TCP port for cluster-wide network connectivity health API
+- name: cluster-id
+  default: "0"
+  usage: Unique identifier of the cluster
+- name: cluster-name
+  default: default
+  usage: Name of the cluster. It must consist of at most 32 lower case alphanumeric
+    characters and '-', start and end with an alphanumeric character.
+- name: clustermesh-cache-ttl
+  default: 0s
+  usage: The time to live for the cache of a remote cluster after connectivity is
+    lost. If the connection is not re-established within this duration, the cached
+    data is revoked to prevent stale state. If not specified or set to 0s, the cache
+    is never revoked.
+- name: clustermesh-config
+  default: ""
+  usage: Path to the ClusterMesh configuration directory
+- name: clustermesh-sync-timeout
+  default: 1m0s
+  usage: Timeout waiting for the initial synchronization of information from remote
+    clusters
+- name: cmdref
+  default: ""
+  usage: Path to cmdref output directory
+- name: cni-chaining-mode
+  default: none
+  usage: Enable CNI chaining with the specified plugin
+- name: cni-chaining-target
+  default: ""
+  usage: CNI network name into which to insert the Cilium chained configuration. Use
+    '*' to select any network.
+- name: cni-exclusive
+  default: "false"
+  usage: Whether to remove other CNI configurations
+- name: cni-external-routing
+  default: "false"
+  usage: Whether the chained CNI plugin handles routing on the node
+- name: cni-log-file
+  default: /var/run/cilium/cilium-cni.log
+  usage: Path where the CNI plugin should write logs
+- name: config
+  default: ""
+  usage: Configuration file (default "$HOME/ciliumd.yaml")
+- name: config-dir
+  default: ""
+  usage: Configuration directory that contains a file for each option
+- name: config-sources
+  default: '[{"kind":"config-map","namespace":"kube-system","name":"cilium-config"}]'
+  usage: Ordered list of configuration sources
+- name: config-sources-overrides
+  default: '{"allowConfigKeys":null,"denyConfigKeys":null}'
+  usage: List of configuration keys that are allowed and not allowed to be overridden.
+    Allowed config keys takes precedence over deny config keys.
+- name: connectivity-probe-frequency-ratio
+  default: "0.5"
+  usage: Ratio of the connectivity probe frequency vs resource usage, a float in [0,
+    1]. 0 will give more frequent probing, 1 will give less frequent probing. Probing
+    frequency is dynamically adjusted based on the cluster size.
+- name: conntrack-gc-interval
+  default: 0s
+  usage: Overwrite the connection-tracking garbage collection interval
+- name: conntrack-gc-max-interval
+  default: 0s
+  usage: Set the maximum interval for the connection-tracking garbage collection
+- name: container-ip-local-reserved-ports
+  default: auto
+  usage: Instructs the Cilium CNI plugin to reserve the provided comma-separated list
+    of ports in the container network namespace. Prevents the container from using
+    these ports as ephemeral source ports (see Linux ip_local_reserved_ports). Use
+    this flag if you observe port conflicts between transparent DNS proxy requests
+    and host network namespace services. Value "auto" reserves the WireGuard and VXLAN
+    ports used by Cilium
+- name: controller-group-metrics
+  default: '[]'
+  usage: List of controller group names for which to enable metrics. Accepts 'all'
+    and 'none'. The set of controller group names available is not guaranteed to be
+    stable between Cilium versions.
+- name: crd-wait-timeout
+  default: 5m0s
+  usage: Cilium will exit if CRDs are not available within this duration upon startup
+- name: datapath-mode
+  default: veth
+  usage: Datapath mode name (auto, veth, netkit, netkit-l2)
+- name: datapath-plugins-state-dir
+  default: /var/run/cilium/plugins
+  usage: Parent directory for per-plugin subdirectories containing UNIX sockets for
+    talking to a Cilium datapath plugin.
+- name: debug
+  default: "false"
+  usage: Enable debugging mode
+- name: debug-verbose
+  default: '[]'
+  usage: List of enabled verbose debug groups
+- name: default-lb-service-ipam
+  default: lbipam
+  usage: 'Indicates the default LoadBalancer Service IPAM when no LoadBalancer class
+    is set.Applicable values: lbipam, nodeipam, none'
+- name: derive-masq-ip-addr-from-device
+  default: ""
+  usage: Device name from which Cilium derives the IP addr for BPF masquerade
+- name: devices
+  default: '[]'
+  usage: List of devices facing cluster/external network (used for BPF NodePort, BPF
+    masquerading and host firewall); supports '+' as wildcard in device name, e.g.
+    'eth+'; support '!' to exclude devices, e.g. '!eth+' excludes any device with
+    prefix 'eth'. Note '!' says nothing about which ones to include. A device must
+    match other criteria to be selected; The filters are matched in order and whatever
+    matched first wins.
+- name: direct-routing-device
+  default: ""
+  usage: Device name used to connect nodes in direct routing mode (used by BPF NodePort,
+    BPF host routing; if empty, automatically set to a device with k8s InternalIP/ExternalIP
+    or with a default route)
+- name: direct-routing-skip-unreachable
+  default: "false"
+  usage: Enable skipping L2 routes between nodes on different subnets
+- name: disable-endpoint-crd
+  default: "false"
+  usage: Disable use of CiliumEndpoint CRD
+- name: disable-envoy-version-check
+  default: "false"
+  usage: Do not perform Envoy version check
+- name: disable-external-ip-mitigation
+  default: "false"
+  usage: Disable ExternalIP mitigation (CVE-2020-8554, default false)
+- name: disable-iptables-feeder-rules
+  default: '[]'
+  usage: Chains to ignore when installing feeder rules.
+- name: dns-max-ips-per-restored-rule
+  default: "1000"
+  usage: Maximum number of IPs to maintain for each restored DNS rule
+- name: dns-policy-unload-on-shutdown
+  default: "false"
+  usage: Unload DNS policy rules on graceful shutdown
+- name: dnsproxy-concurrency-limit
+  default: "0"
+  usage: Limit concurrency of DNS message processing
+- name: dnsproxy-concurrency-processing-grace-period
+  default: 0s
+  usage: Grace time to wait when DNS proxy concurrent limit has been reached during
+    DNS message processing
+- name: dnsproxy-enable-transparent-mode
+  default: "false"
+  usage: Enable DNS proxy transparent mode
+- name: dnsproxy-insecure-skip-transparent-mode-check
+  default: "false"
+  usage: Allows DNS proxy transparent mode to be disabled even if encryption is enabled.
+    Enabling this flag and disabling DNS proxy transparent mode will cause proxied
+    DNS traffic to leave the node unencrypted.
+- name: dnsproxy-lock-count
+  default: "131"
+  usage: Array size containing mutexes which protect against parallel handling of
+    DNS response names. Preferably use prime numbers
+- name: dnsproxy-lock-timeout
+  default: 500ms
+  usage: Timeout when acquiring the locks controlled by --dnsproxy-lock-count
+- name: dnsproxy-socket-linger-timeout
+  default: "10"
+  usage: Timeout (in seconds) when closing the connection between the DNS proxy and
+    the upstream server. If set to 0, the connection is closed immediately (with TCP
+    RST). If set to -1, the connection is closed asynchronously in the background
+- name: dynamic-lifecycle-config
+  default: '[]'
+  usage: List of dynamic lifecycle features and their configuration including the
+    dependencies
+- name: egress-gateway-policy-map-max
+  default: "16384"
+  usage: Maximum number of entries in egress gateway policy map
+- name: egress-gateway-reconciliation-trigger-interval
+  default: 1s
+  usage: Time between triggers of egress gateway state reconciliations
+- name: egress-masquerade-interfaces
+  default: '[]'
+  usage: Limit iptables-based egress masquerading to interfaces selector
+- name: enable-active-connection-tracking
+  default: "false"
+  usage: Count open and active connections to services, grouped by zones defined in
+    fixed-zone-mapping.
+- name: enable-auto-protect-node-port-range
+  default: "true"
+  usage: Append NodePort range to net.ipv4.ip_local_reserved_ports if it overlaps
+    with ephemeral port range (net.ipv4.ip_local_port_range)
+- name: enable-bandwidth-manager
+  default: "false"
+  usage: Enable BPF bandwidth manager
+- name: enable-bbr
+  default: "false"
+  usage: Enable BBR for the bandwidth manager
+- name: enable-bbr-hostns-only
+  default: "false"
+  usage: Enable BBR only in the host network namespace.
+- name: enable-bgp-control-plane
+  default: "false"
+  usage: Enable the BGP control plane.
+- name: enable-bgp-control-plane-status-report
+  default: "true"
+  usage: Enable the BGP control plane status reporting
+- name: enable-bgp-legacy-origin-attribute
+  default: "false"
+  usage: Enable LoadBalancerIP routes to be advertised with BGP Origin Attribute set
+    to INCOMPLETE
+- name: enable-bpf-clock-probe
+  default: "false"
+  usage: Enable BPF clock source probing for more efficient tick retrieval
+- name: enable-bpf-masquerade
+  default: "false"
+  usage: Masquerade packets from endpoints leaving the host with BPF instead of iptables
+- name: enable-bpf-tproxy
+  default: "false"
+  usage: Enable BPF-based proxy redirection (beta), if support available
+- name: enable-cilium-api-server-access
+  default: '[*]'
+  usage: List of cilium API APIs which are administratively enabled. Supports '*'.
+- name: enable-cilium-clusterwide-network-policy
+  default: "true"
+  usage: Enable support for Cilium Clusterwide Network Policy
+- name: enable-cilium-endpoint-slice
+  default: "false"
+  usage: Enable the CiliumEndpointSlice watcher in place of the CiliumEndpoint watcher
+    (beta)
+- name: enable-cilium-health-api-server-access
+  default: '[*]'
+  usage: List of cilium health API APIs which are administratively enabled. Supports
+    '*'.
+- name: enable-cilium-network-policy
+  default: "true"
+  usage: Enable support for Cilium Network Policy
+- name: enable-ciliumnode-crd
+  default: "true"
+  usage: Enable use of CiliumNode CRD
+- name: enable-datapath-plugins
+  default: "false"
+  usage: Enable use of datapath plugins and the CiliumDatapathPlugins CRD
+- name: enable-drift-checker
+  default: "true"
+  usage: Enables support for config drift checker
+- name: enable-dynamic-config
+  default: "true"
+  usage: Enables support for dynamic agent config
+- name: enable-dynamic-lifecycle-manager
+  default: "false"
+  usage: Enables support for dynamic lifecycle management
+- name: enable-dynamic-source-lookup-nodeport
+  default: "false"
+  usage: Enable dynamic source IP resolution for SNAT via linux's routing table. The
+    kernel must support this feature.
+- name: enable-egress-gateway
+  default: "false"
+  usage: Enable egress gateway
+- name: enable-encryption-strict-mode-egress
+  default: "false"
+  usage: Enable strict mode encryption enforcement for egress traffic
+- name: enable-encryption-strict-mode-ingress
+  default: "false"
+  usage: Enable strict mode encryption enforcement for ingress traffic
+- name: enable-endpoint-health-checking
+  default: "true"
+  usage: Enable connectivity health checking between virtual endpoints
+- name: enable-endpoint-lockdown-on-policy-overflow
+  default: "false"
+  usage: When an endpoint's policy map overflows, shutdown all (ingress and egress)
+    network traffic for that endpoint.
+- name: enable-endpoint-routes
+  default: "false"
+  usage: Use per endpoint routes instead of routing via cilium_host
+- name: enable-envoy-config
+  default: "false"
+  usage: Enable Envoy Config CRDs
+- name: enable-extended-ip-protocols
+  default: "false"
+  usage: Enable traffic with extended IP protocols in datapath
+- name: enable-gateway-api
+  default: "false"
+  usage: Enables Envoy secret sync for Gateway API related TLS secrets
+- name: enable-gops
+  default: "true"
+  usage: Enable gops server
+- name: enable-health-check-loadbalancer-ip
+  default: "false"
+  usage: Enable access of the healthcheck nodePort on the LoadBalancerIP. Needs --enable-health-check-nodeport
+    to be enabled
+- name: enable-health-check-nodeport
+  default: "true"
+  usage: Enables a healthcheck nodePort server for NodePort services with 'healthCheckNodePort'
+    being set
+- name: enable-health-checking
+  default: "true"
+  usage: Enable connectivity health checking
+- name: enable-host-firewall
+  default: "false"
+  usage: Enable host network policies
+- name: enable-host-legacy-routing
+  default: "false"
+  usage: Enable the legacy host forwarding model which does not bypass upper stack
+    in host namespace
+- name: enable-hubble
+  default: "false"
+  usage: Enable hubble server
+- name: enable-hubble-open-metrics
+  default: "false"
+  usage: Enable exporting hubble metrics in OpenMetrics format.
+- name: enable-icmp-rules
+  default: "true"
+  usage: Enable ICMP-based rule support for Cilium Network Policies
+- name: enable-identity-mark
+  default: "true"
+  usage: Enable setting identity mark for local traffic
+- name: enable-ingress-controller
+  default: "false"
+  usage: Enables Envoy secret sync for Ingress controller related TLS secrets
+- name: enable-ip-masq-agent
+  default: "false"
+  usage: Enable BPF ip-masq-agent
+- name: enable-ipip-termination
+  default: "false"
+  usage: Enable plain IPIP/IP6IP6 termination
+- name: enable-ipsec
+  default: "false"
+  usage: Enable IPsec
+- name: enable-ipsec-key-watcher
+  default: "true"
+  usage: Enable watcher for IPsec key. If disabled, a restart of the agent will be
+    necessary on key rotations.
+- name: enable-ipsec-xfrm-state-caching
+  default: "true"
+  usage: Enable XfrmState cache for IPSec. Significantly reduces CPU usage in large
+    clusters.
+- name: enable-ipv4
+  default: "true"
+  usage: Enable IPv4 support
+- name: enable-ipv4-big-tcp
+  default: "false"
+  usage: Enable IPv4 BIG TCP option which increases device's maximum GRO/GSO limits
+    for IPv4
+- name: enable-ipv4-fragment-tracking
+  default: "true"
+  usage: Enable IPv4 fragments tracking for L4-based lookups
+- name: enable-ipv4-masquerade
+  default: "true"
+  usage: Masquerade IPv4 traffic from endpoints leaving the host
+- name: enable-ipv6
+  default: "true"
+  usage: Enable IPv6 support
+- name: enable-ipv6-big-tcp
+  default: "false"
+  usage: Enable IPv6 BIG TCP option which increases device's maximum GRO/GSO limits
+    for IPv6
+- name: enable-ipv6-fragment-tracking
+  default: "true"
+  usage: Enable IPv6 fragments tracking for L4-based lookups
+- name: enable-ipv6-masquerade
+  default: "true"
+  usage: Masquerade IPv6 traffic from endpoints leaving the host
+- name: enable-ipv6-ndp
+  default: "false"
+  usage: Enable IPv6 NDP support
+- name: enable-k8s
+  default: "true"
+  usage: Enable the k8s clientset
+- name: enable-k8s-api-discovery
+  default: "false"
+  usage: Enable discovery of Kubernetes API groups and resources with the discovery
+    API
+- name: enable-k8s-cluster-network-policy
+  default: "false"
+  usage: Enable support for K8s ClusterNetworkPolicy
+- name: enable-k8s-host-firewall-bypass
+  default: "true"
+  usage: Enable bypassing host firewall for Kubernetes API server access.
+- name: enable-k8s-networkpolicy
+  default: "true"
+  usage: Enable support for K8s NetworkPolicy
+- name: enable-l2-announcements
+  default: "false"
+  usage: Enable L2 announcements
+- name: enable-l2-neigh-discovery
+  default: "false"
+  usage: Enables L2 neighbor discovery, even when XDP acceleration is disabled
+- name: enable-l2-pod-announcements
+  default: "false"
+  usage: Enable announcing Pod IPs with Gratuitous ARP and NDP
+- name: enable-l7-proxy
+  default: "true"
+  usage: Enable L7 proxy for L7 policy enforcement
+- name: enable-lb-ipam
+  default: "true"
+  usage: Enable LB IPAM
+- name: enable-local-node-route
+  default: "true"
+  usage: Enable installation of the route which points the allocation prefix of the
+    local node
+- name: enable-local-redirect-policy
+  default: "false"
+  usage: Enable Local Redirect Policy
+- name: enable-masquerade-to-route-source
+  default: "false"
+  usage: Masquerade packets to the source IP provided from the routing layer rather
+    than interface address
+- name: enable-mke
+  default: "false"
+  usage: Enable BPF kube-proxy replacement for MKE environments
+- name: enable-monitor
+  default: "true"
+  usage: Enable the monitor unix domain socket server
+- name: enable-nat46x64-gateway
+  default: "false"
+  usage: Enable NAT46 and NAT64 gateway
+- name: enable-no-service-endpoints-routable
+  default: "true"
+  usage: Enable routes when service has 0 endpoints
+- name: enable-node-ipam
+  default: "false"
+  usage: Enable Node IPAM
+- name: enable-node-selector-labels
+  default: "false"
+  usage: Enable use of node label based identity
+- name: enable-non-default-deny-policies
+  default: "true"
+  usage: Enable use of non-default-deny policies
+- name: enable-pmtu-discovery
+  default: "false"
+  usage: Enable path MTU discovery to send ICMP fragmentation-needed replies to the
+    client
+- name: enable-policy
+  default: default
+  usage: Enable policy enforcement
+- name: enable-policy-secrets-sync
+  default: "false"
+  usage: Enables Envoy secret sync for Secrets used in CiliumNetworkPolicy and CiliumClusterwideNetworkPolicy
+- name: enable-remote-node-masquerade
+  default: "false"
+  usage: Masquerade packets from endpoints leaving the host destined to a remote node
+    in BPF masquerading mode. This option requires to set enable-bpf-masquerade to
+    true.
+- name: enable-route-mtu-for-cni-chaining
+  default: "false"
+  usage: Enable route MTU for pod netns when CNI chaining is used
+- name: enable-sctp
+  default: "false"
+  usage: Enable SCTP support (beta)
+- name: enable-service-topology
+  default: "false"
+  usage: Enable support for service topology aware hints
+- name: enable-srv6
+  default: "false"
+  usage: Enable SRv6 support (beta)
+- name: enable-stale-cilium-endpoint-cleanup
+  default: "true"
+  usage: Enable running cleanup init procedure of local CiliumEndpoints which are
+    not being managed.
+- name: enable-standalone-dns-proxy
+  default: "false"
+  usage: Enables standalone DNS proxy
+- name: enable-tcx
+  default: "true"
+  usage: Attach endpoint programs using tcx if supported by the kernel
+- name: enable-tracing
+  default: "false"
+  usage: Enable tracing while determining policy (debugging)
+- name: enable-unreachable-routes
+  default: "false"
+  usage: Add unreachable routes on pod deletion
+- name: enable-vtep
+  default: "false"
+  usage: Enable  VXLAN Tunnel Endpoint (VTEP) Integration (beta)
+- name: enable-well-known-identities
+  default: "true"
+  usage: Enable well-known identities for known Kubernetes components
+- name: enable-wireguard
+  default: "false"
+  usage: Enable WireGuard
+- name: enable-xdp-prefilter
+  default: "false"
+  usage: Enable XDP prefiltering
+- name: enable-xt-socket-fallback
+  default: "true"
+  usage: Enable fallback for missing xt_socket module
+- name: enable-ztunnel
+  default: "false"
+  usage: Use zTunnel as Cilium's encryption infrastructure
+- name: encrypt-node
+  default: "false"
+  usage: Enables encrypting traffic from non-Cilium pods and host networking (only
+    supported with WireGuard, beta)
+- name: encryption-strict-egress-allow-remote-node-identities
+  default: "false"
+  usage: Allows unencrypted traffic from pods to remote node identities within the
+    strict mode CIDR. This is required when tunneling is used or direct routing is
+    used and the node CIDR and pod CIDR overlap.
+- name: encryption-strict-egress-cidr
+  default: ""
+  usage: In strict-mode-egress encryption, all unencrypted traffic coming from this
+    CIDR and going to this same CIDR will be dropped.
+- name: endpoint-bpf-prog-watchdog-interval
+  default: 30s
+  usage: Interval to trigger endpoint BPF programs load check watchdog
+- name: endpoint-gc-interval
+  default: 5m0s
+  usage: Periodically monitor local endpoint health via link status on this interval
+    and garbage collect them if they become unhealthy, set to 0 to disable
+- name: endpoint-policy-update-timeout
+  default: 10s
+  usage: Timeout duration for Endpoint policy updates
+- name: endpoint-queue-size
+  default: "25"
+  usage: Size of EventQueue per-endpoint
+- name: endpoint-regen-interval
+  default: 2m0s
+  usage: Periodically recalculate and re-apply endpoint configuration. Set to 0 to
+    disable
+- name: eni-delete-on-termination
+  default: "true"
+  usage: Whether the ENI should be deleted when the associated instance is terminated
+    at the node level
+- name: eni-disable-prefix-delegation
+  default: "false"
+  usage: Whether ENI prefix delegation should be disabled on this node at the node
+    level
+- name: eni-exclude-interface-tags
+  default: '[]'
+  usage: List of tags to use when excluding ENIs for Cilium IP allocation at the node
+    level
+- name: eni-first-interface-index
+  default: "0"
+  usage: Index of the first ENI to use for IP allocation at the node level
+- name: eni-security-group-tags
+  default: '[]'
+  usage: List of tags to use when evaluating what AWS security groups to use for the
+    ENI at the node level
+- name: eni-security-groups
+  default: '[]'
+  usage: List of security groups to attach to any ENI that is created and attached
+    to the instance at the node level
+- name: eni-subnet-ids
+  default: '[]'
+  usage: List of subnet ids to use when evaluating what AWS subnets to use for ENI
+    and IP allocation at the node level
+- name: eni-subnet-tags
+  default: '[]'
+  usage: List of tags to use when evaluating what AWS subnets to use for ENI and IP
+    allocation at the node level
+- name: eni-use-primary-address
+  default: "false"
+  usage: Whether an ENI's primary address should be available for allocations on the
+    node at the node level
+- name: envoy-access-log-buffer-size
+  default: "4096"
+  usage: Envoy access log buffer size in bytes
+- name: envoy-access-log-enabled
+  default: "true"
+  usage: Enable access log forwarding for integration with Hubble.
+- name: envoy-base-id
+  default: "0"
+  usage: Envoy base ID
+- name: envoy-config-retry-interval
+  default: 15s
+  usage: Interval in which an attempt is made to reconcile failed EnvoyConfigs. If
+    the duration is zero, the retry is deactivated.
+- name: envoy-config-timeout
+  default: 2m0s
+  usage: Timeout that determines how long to wait for Envoy to N/ACK CiliumEnvoyConfig
+    resources
+- name: envoy-default-log-level
+  default: ""
+  usage: Default log level of Envoy application log that is configured if Cilium debug
+    / verbose logging isn't enabled. If not defined, the default log level of the
+    Cilium Agent is used.
+- name: envoy-http-upstream-linger-timeout
+  default: "-1"
+  usage: Time in seconds to block Envoy worker thread while an upstream HTTP connection
+    is closing. If set to 0, the connection is closed immediately (with TCP RST).
+    If set to -1, the connection is closed asynchronously in the background.
+- name: envoy-keep-cap-netbindservice
+  default: "false"
+  usage: Keep capability NET_BIND_SERVICE for Envoy process
+- name: envoy-log
+  default: ""
+  usage: Path to a separate Envoy log file, if any
+- name: envoy-node-locality-enabled
+  default: "false"
+  usage: Enable Envoy node-locality support for zone-aware routing
+- name: envoy-policy-restore-timeout
+  default: 3m0s
+  usage: Maximum time to wait for endpoint policy restoration before starting serving
+    resources to Envoy
+- name: envoy-secrets-namespace
+  default: ""
+  usage: EnvoySecretsNamespace is the namespace having secrets used by CEC
+- name: exclude-local-address
+  default: '[]'
+  usage: Exclude CIDR from being recognized as local address
+- name: exclude-node-label-patterns
+  default: '[]'
+  usage: List of k8s node label regex patterns to be excluded from CiliumNode
+- name: external-envoy-proxy
+  default: "false"
+  usage: whether the Envoy is deployed externally in form of a DaemonSet or not
+- name: fib-table-id-annotation
+  default: "false"
+  usage: Enable parsing of the network.cilium.io/fib-table-id pod annotation for pod
+    egress routing
+- name: fixed-identity-mapping
+  default: ""
+  usage: Key-value for the fixed identity mapping which allows to use reserved label
+    for fixed identities, e.g. 128=kv-store,129=kube-dns
+- name: force-device-detection
+  default: "false"
+  usage: Forces the auto-detection of devices, even if specific devices are explicitly
+    listed
+- name: fqdn-regex-compile-lru-size
+  default: "1024"
+  usage: Size of the FQDN regex compilation LRU. Useful for heavy but repeated DNS
+    L7 rules with MatchName or MatchPattern
+- name: gateway-api-secrets-namespace
+  default: ""
+  usage: GatewayAPISecretsNamespace is the namespace having tls secrets used by CEC,
+    originating from Gateway API
+- name: gops-port
+  default: "9890"
+  usage: Port for gops server to listen on
+- name: health-check-icmp-failure-threshold
+  default: "3"
+  usage: Number of ICMP requests sent for each run of the health checker. If at least
+    one ICMP response is received, the node or endpoint is marked as healthy.
+- name: hive-log-threshold
+  default: 100ms
+  usage: Time limit after which a slow hook is logged at Info level
+- name: hive-start-timeout
+  default: 5m0s
+  usage: Maximum time to wait for startup hooks to complete before timing out
+- name: hive-stop-timeout
+  default: 1m0s
+  usage: Maximum time to wait for stop hooks to complete before timing out
+- name: http-idle-timeout
+  default: "0"
+  usage: Time after which a non-gRPC HTTP stream is considered failed unless traffic
+    in the stream has been processed (in seconds); defaults to 0 (unlimited)
+- name: http-max-grpc-timeout
+  default: "0"
+  usage: Time after which a forwarded gRPC request is considered failed unless completed
+    (in seconds). A "grpc-timeout" header may override this with a shorter value;
+    defaults to 0 (unlimited)
+- name: http-normalize-path
+  default: "true"
+  usage: Use Envoy HTTP path normalization options, which currently includes RFC 3986
+    path normalization, Envoy merge slashes option, and unescaping and redirecting
+    for paths that contain escaped slashes. These are necessary to keep path based
+    access control functional, and should not interfere with normal operation. Set
+    this to false only with caution.
+- name: http-request-timeout
+  default: "3600"
+  usage: Time after which a forwarded HTTP request is considered failed unless completed
+    (in seconds); Use 0 for unlimited
+- name: http-retry-count
+  default: "3"
+  usage: Number of retries performed after a forwarded request attempt fails
+- name: http-retry-timeout
+  default: "0"
+  usage: Time after which a forwarded but uncompleted request is retried (connection
+    failures are retried immediately); defaults to 0 (never)
+- name: http-stream-idle-timeout
+  default: "300"
+  usage: Set Envoy the amount of time in seconds that the connection manager will
+    allow a stream to exist with no upstream or downstream activity.
+- name: hubble-disable-tls
+  default: "true"
+  usage: Allow Hubble server to run on the given listen address without TLS.
+- name: hubble-drop-events
+  default: "false"
+  usage: Emit packet drop Events related to pods (alpha)
+- name: hubble-drop-events-extended
+  default: "false"
+  usage: Include L4 network policies in drop event message
+- name: hubble-drop-events-interval
+  default: 2m0s
+  usage: Minimum time between emitting same events
+- name: hubble-drop-events-rate-limit
+  default: "1"
+  usage: Rate limit for the drop event emitter in events per second (0 for no rate
+    limit)
+- name: hubble-drop-events-reasons
+  default: '[auth_required,policy_denied]'
+  usage: Drop reasons to emit events for
+- name: hubble-dynamic-metrics-config-path
+  default: ""
+  usage: Filepath with dynamic configuration of hubble metrics.
+- name: hubble-event-buffer-capacity
+  default: "4095"
+  usage: 'Capacity of Hubble events buffer. The provided value must be one less than
+    an integer power of two and no larger than 65535 (ie: 1, 3, ..., 2047, 4095, ...,
+    65535)'
+- name: hubble-event-queue-size
+  default: "0"
+  usage: Buffer size of the channel to receive monitor events.
+- name: hubble-export-aggregation-interval
+  default: 0s
+  usage: Interval at which to aggregate before exporting Hubble flows. 0s disables
+    aggregation.
+- name: hubble-export-allowlist
+  default: ""
+  usage: Specify allowlist as JSON encoded FlowFilters to Hubble exporter.
+- name: hubble-export-denylist
+  default: ""
+  usage: Specify denylist as JSON encoded FlowFilters to Hubble exporter.
+- name: hubble-export-fieldaggregate
+  default: '[]'
+  usage: Specify list of fields to use for aggregation in Hubble exporter. Empty list
+    disables aggregation.
+- name: hubble-export-fieldmask
+  default: '[]'
+  usage: Specify list of fields to use for field mask in Hubble exporter.
+- name: hubble-export-file-compress
+  default: "false"
+  usage: Compress rotated Hubble export files.
+- name: hubble-export-file-max-backups
+  default: "5"
+  usage: Number of rotated Hubble export files to keep.
+- name: hubble-export-file-max-size-mb
+  default: "10"
+  usage: Size in MB at which to rotate Hubble export file.
+- name: hubble-export-file-path
+  default: ""
+  usage: Filepath to write Hubble events to. By specifying `stdout` the flows are
+    logged instead of written to a rotated file.
+- name: hubble-flowlogs-config-path
+  default: ""
+  usage: Filepath with configuration of hubble flowlogs
+- name: hubble-listen-address
+  default: ""
+  usage: An additional address for Hubble server to listen to, e.g. ":4244"
+- name: hubble-lost-event-send-interval
+  default: 1s
+  usage: Interval at which lost events are sent from the Observer server, if any.
+- name: hubble-metrics
+  default: ""
+  usage: List of Hubble metrics to enable.
+- name: hubble-metrics-server
+  default: ""
+  usage: Address to serve Hubble metrics on.
+- name: hubble-metrics-server-enable-tls
+  default: "false"
+  usage: Run the Hubble metrics server on the given listen address with TLS.
+- name: hubble-metrics-server-tls-cert-file
+  default: ""
+  usage: Path to the public key file for the Hubble metrics server. The file must
+    contain PEM encoded data.
+- name: hubble-metrics-server-tls-client-ca-files
+  default: '[]'
+  usage: Paths to one or more public key files of client CA certificates to use for
+    TLS with mutual authentication (mTLS). The files must contain PEM encoded data.
+    When provided, this option effectively enables mTLS.
+- name: hubble-metrics-server-tls-key-file
+  default: ""
+  usage: Path to the private key file for the Hubble metrics server. The file must
+    contain PEM encoded data.
+- name: hubble-monitor-events
+  default: '[]'
+  usage: 'Cilium monitor events for Hubble to observe: [drop debug capture trace policy-verdict
+    trace-sock l7 agent]. By default, Hubble observes all monitor events.'
+- name: hubble-network-policy-correlation-enabled
+  default: "true"
+  usage: Enable network policy correlation of Hubble flows
+- name: hubble-prefer-ipv6
+  default: "false"
+  usage: Prefer IPv6 addresses for announcing nodes when both address types are available.
+- name: hubble-redact-enabled
+  default: "false"
+  usage: Hubble redact sensitive information from flows
+- name: hubble-redact-http-headers-allow
+  default: '[]'
+  usage: HTTP headers to keep visible in flows
+- name: hubble-redact-http-headers-deny
+  default: '[]'
+  usage: HTTP headers to redact from flows
+- name: hubble-redact-http-urlquery
+  default: "false"
+  usage: Hubble redact http URL query from flows
+- name: hubble-redact-http-userinfo
+  default: "true"
+  usage: Hubble redact http user info from flows
+- name: hubble-skip-unknown-cgroup-ids
+  default: "true"
+  usage: Skip Hubble events with unknown cgroup ids
+- name: hubble-socket-path
+  default: /var/run/cilium/hubble.sock
+  usage: Set hubble's socket path to listen for connections
+- name: hubble-tls-cert-file
+  default: ""
+  usage: Path to the public key file for the Hubble server. The file must contain
+    PEM encoded data.
+- name: hubble-tls-client-ca-files
+  default: '[]'
+  usage: Paths to one or more public key files of client CA certificates to use for
+    TLS with mutual authentication (mTLS). The files must contain PEM encoded data.
+    When provided, this option effectively enables mTLS.
+- name: hubble-tls-key-file
+  default: ""
+  usage: Path to the private key file for the Hubble server. The file must contain
+    PEM encoded data.
+- name: identity-allocation-mode
+  default: kvstore
+  usage: Method to use for identity allocation
+- name: identity-allocation-sync-interval
+  default: 5m0s
+  usage: Periodic synchronization interval of the allocated identities
+- name: identity-allocation-timeout
+  default: 2m0s
+  usage: Timeout for identity allocation operations
+- name: identity-change-grace-period
+  default: 5s
+  usage: Time to wait before using new identity on endpoint identity change
+- name: identity-management-mode
+  default: agent
+  usage: Configure whether Cilium Identities are managed by cilium-agent, cilium-operator,
+    or both
+- name: identity-max-jitter
+  default: 30s
+  usage: Maximum jitter time to begin processing CiliumIdentity updates
+- name: identity-restore-grace-period
+  default: 30s
+  usage: Time to wait before releasing unused restored CIDR identities during agent
+    restart
+- name: ignore-flags-drift-checker
+  default: '[]'
+  usage: Ignores specified flags during drift checking
+- name: ingress-secrets-namespace
+  default: ""
+  usage: IngressSecretsNamespace is the namespace having tls secrets used by CEC,
+    originating from Ingress controller
+- name: install-iptables-rules
+  default: "true"
+  usage: Install base iptables rules for cilium to mainly interact with kube-proxy
+    (and masquerading)
+- name: install-no-conntrack-iptables-rules
+  default: "false"
+  usage: Install Iptables rules to skip netfilter connection tracking on all pod traffic.
+    This option is only effective when Cilium is running in direct routing and full
+    KPR mode. Moreover, this option cannot be enabled when Cilium is running in a
+    managed Kubernetes environment or in a chained CNI setup.
+- name: install-uplink-routes-for-delegated-ipam
+  default: "false"
+  usage: Install ingress/egress routes through uplink on host for Pods when working
+    with delegated IPAM plugin.
+- name: ip-masq-agent-config-path
+  default: /etc/config/ip-masq-agent
+  usage: ip-masq-agent configuration file path
+- name: ip-tracing-option-type
+  default: "0"
+  usage: Specifies what IPv4 option type should be used to extract trace information
+    from a packet; a value of 0 (default) disables IP tracing.
+- name: ipam
+  default: cluster-pool
+  usage: Backend to use for IPAM
+- name: ipam-cilium-node-update-rate
+  default: 15s
+  usage: Maximum rate at which the CiliumNode custom resource is updated
+- name: ipam-default-ip-pool
+  default: default
+  usage: Name of the default IP Pool when using multi-pool
+- name: ipam-max-allocate
+  default: "0"
+  usage: Maximum number of IPs that can be allocated at the node level
+- name: ipam-min-allocate
+  default: "0"
+  usage: Minimum number of IPs that must be allocated when the node is first bootstrapped
+    at the node level
+- name: ipam-multi-pool-pre-allocation
+  default: ""
+  usage: Defines the minimum number of IPs a node should pre-allocate from each pool
+    (default default=8)
+- name: ipam-pre-allocate
+  default: "0"
+  usage: Number of IP addresses that must be available for allocation in the IPAMspec
+    at the node level
+- name: ipam-static-ip-tags
+  default: '[]'
+  usage: List of tags to determine the pool of IPs from which to attribute a static
+    IP to the node at the node level, this currently works with AWS and Azure
+- name: ipsec-key-file
+  default: ""
+  usage: Path to IPsec key file
+- name: ipsec-key-rotation-duration
+  default: 5m0s
+  usage: Maximum duration of the IPsec key rotation. The previous key will be removed
+    after that delay.
+- name: iptables-lock-timeout
+  default: 5s
+  usage: Time to pass to each iptables invocation to wait for xtables lock acquisition
+- name: iptables-random-fully
+  default: "false"
+  usage: Set iptables flag random-fully on masquerading rules
+- name: ipv4-native-routing-cidr
+  default: ""
+  usage: Allows to explicitly specify the IPv4 CIDR for native routing. When specified,
+    Cilium assumes networking for this CIDR is preconfigured and hands traffic destined
+    for that range to the Linux network stack without applying any SNAT. Generally
+    speaking, specifying a native routing CIDR implies that Cilium can depend on the
+    underlying networking stack to route packets to their destination. To offer a
+    concrete example, if Cilium is configured to use direct routing and the Kubernetes
+    CIDR is included in the native routing CIDR, the user must configure the routes
+    to reach pods, either manually or by setting the auto-direct-node-routes flag.
+- name: ipv4-node
+  default: auto
+  usage: IPv4 address of node
+- name: ipv4-pod-subnets
+  default: '[]'
+  usage: List of IPv4 pod subnets to preconfigure for encryption
+- name: ipv4-range
+  default: auto
+  usage: Per-node IPv4 endpoint prefix, e.g. 10.16.0.0/16
+- name: ipv4-service-loopback-address
+  default: 169.254.42.1
+  usage: IPv4 source address to use for SNAT when a Pod talks to itself over a Service.
+- name: ipv4-service-range
+  default: auto
+  usage: Kubernetes IPv4 services CIDR if not inside cluster prefix
+- name: ipv6-cluster-alloc-cidr
+  default: f00d::/64
+  usage: IPv6 /64 CIDR used to allocate per node endpoint /96 CIDR
+- name: ipv6-mcast-device
+  default: ""
+  usage: Device that joins a Solicited-Node multicast group for IPv6
+- name: ipv6-native-routing-cidr
+  default: ""
+  usage: Allows to explicitly specify the IPv6 CIDR for native routing. When specified,
+    Cilium assumes networking for this CIDR is preconfigured and hands traffic destined
+    for that range to the Linux network stack without applying any SNAT. Generally
+    speaking, specifying a native routing CIDR implies that Cilium can depend on the
+    underlying networking stack to route packets to their destination. To offer a
+    concrete example, if Cilium is configured to use direct routing and the Kubernetes
+    CIDR is included in the native routing CIDR, the user must configure the routes
+    to reach pods, either manually or by setting the auto-direct-node-routes flag.
+- name: ipv6-node
+  default: auto
+  usage: IPv6 address of node
+- name: ipv6-pod-subnets
+  default: '[]'
+  usage: List of IPv6 pod subnets to preconfigure for encryption
+- name: ipv6-range
+  default: auto
+  usage: Per-node IPv6 endpoint prefix, e.g. fd02:1:1::/96
+- name: ipv6-service-loopback-address
+  default: fe80::1
+  usage: IPv6 source address to use for SNAT when a Pod talks to itself over a Service.
+- name: ipv6-service-range
+  default: auto
+  usage: Kubernetes IPv6 services CIDR if not inside cluster prefix
+- name: k8s-api-server-urls
+  default: '[]'
+  usage: Kubernetes API server URLs
+- name: k8s-client-burst
+  default: "20"
+  usage: Burst value allowed for the K8s client
+- name: k8s-client-connection-keep-alive
+  default: 30s
+  usage: Configures the keep alive duration of K8s client connections. K8 client is
+    disabled if the value is set to 0
+- name: k8s-client-connection-timeout
+  default: 30s
+  usage: Configures the timeout of K8s client connections. K8s client is disabled
+    if the value is set to 0
+- name: k8s-client-qps
+  default: "10"
+  usage: Queries per second limit for the K8s client
+- name: k8s-heartbeat-timeout
+  default: 30s
+  usage: Configures the timeout for api-server heartbeat, set to 0 to disable
+- name: k8s-kubeconfig-path
+  default: ""
+  usage: Absolute path of the kubernetes kubeconfig file
+- name: k8s-namespace
+  default: ""
+  usage: Name of the Kubernetes namespace in which Cilium is deployed in
+- name: k8s-require-ipv4-pod-cidr
+  default: "false"
+  usage: Require IPv4 PodCIDR to be specified in node resource
+- name: k8s-require-ipv6-pod-cidr
+  default: "false"
+  usage: Require IPv6 PodCIDR to be specified in node resource
+- name: k8s-service-proxy-name
+  default: ""
+  usage: Value of K8s service-proxy-name label for which Cilium handles the services
+    (empty = all services without service.kubernetes.io/service-proxy-name label)
+- name: k8s-sync-timeout
+  default: 3m0s
+  usage: Timeout after last K8s event for synchronizing k8s resources before exiting
+- name: keep-config
+  default: "false"
+  usage: When restoring state, keeps containers' configuration in place
+- name: kube-proxy-replacement
+  default: "false"
+  usage: Enable kube-proxy replacement
+- name: kube-proxy-replacement-healthz-bind-address
+  default: ""
+  usage: The IP address with port for kube-proxy replacement health check server to
+    serve on (set to '0.0.0.0:10256' for all IPv4 interfaces and '[::]:10256' for
+    all IPv6 interfaces). Set empty to disable.
+- name: kvstore
+  default: ""
+  usage: Key-value store type
+- name: kvstore-lease-ttl
+  default: 15m0s
+  usage: Time-to-live for the KVstore lease.
+- name: kvstore-max-consecutive-quorum-errors
+  default: "2"
+  usage: Max acceptable kvstore consecutive quorum errors before recreating the etcd
+    connection
+- name: kvstore-opt
+  default: '[]'
+  usage: Key-value store options e.g. etcd.address=127.0.0.1:4001
+- name: l2-announcements-lease-duration
+  default: 15s
+  usage: Duration of inactivity after which a new leader is selected
+- name: l2-announcements-renew-deadline
+  default: 5s
+  usage: Interval at which the leader renews a lease
+- name: l2-announcements-retry-period
+  default: 2s
+  usage: Timeout after a renew failure, before the next retry
+- name: l2-pod-announcements-interface-pattern
+  default: ""
+  usage: Regex matching interfaces used for sending gratuitous ARP and NDP messages
+- name: label-prefix-file
+  default: ""
+  usage: Valid label prefixes file path
+- name: labels
+  default: '[]'
+  usage: List of label prefixes used to determine identity of an endpoint
+- name: lb-init-wait-timeout
+  default: 1m0s
+  usage: Amount of time to wait for initialization before reconciling BPF maps
+- name: lb-pressure-metrics-interval
+  default: 5m0s
+  usage: Interval for reporting pressure metrics for load-balancing BPF maps. 0 disables
+    reporting.
+- name: lb-retry-backoff-max
+  default: 1s
+  usage: Maximum amount of time to wait before retrying LB operation
+- name: lb-retry-backoff-min
+  default: 1s
+  usage: Minimum amount of time to wait before retrying LB operation
+- name: lb-sock-terminate-all-protos
+  default: "false"
+  usage: Enable terminating connections to deleted service backends for both TCP and
+    UDP
+- name: lb-state-file
+  default: ""
+  usage: Synchronize load-balancing state from the specified file
+- name: lb-state-file-interval
+  default: 1s
+  usage: Amount of time to wait for load-balancing state file to settle before processing
+    it
+- name: lib-dir
+  default: /var/lib/cilium
+  usage: Directory path to store runtime build environment
+- name: local-max-addr-scope
+  default: "254"
+  usage: Maximum local address scope for ipcache to consider host addresses
+- name: local-router-ipv4
+  default: ""
+  usage: Link-local IPv4 used for Cilium's router devices
+- name: local-router-ipv6
+  default: ""
+  usage: Link-local IPv6 used for Cilium's router devices
+- name: log-driver
+  default: '[]'
+  usage: Logging endpoints to use for example syslog
+- name: log-opt
+  default: ""
+  usage: 'Log driver options for cilium-agent, configmap example for syslog driver:
+    {"syslog.level":"info","syslog.facility":"local5","syslog.tag":"cilium-agent"}'
+- name: log-system-load
+  default: "false"
+  usage: Enable periodic logging of system load
+- name: lrp-address-matcher-cidrs
+  default: '[]'
+  usage: Limit address matches to specific CIDRs
+- name: max-connected-clusters
+  default: "255"
+  usage: Maximum number of clusters to be connected in a clustermesh. Increasing this
+    value will reduce the maximum number of identities available. Valid configurations
+    are [255, 511].
+- name: max-controller-interval
+  default: "0"
+  usage: Maximum interval (in seconds) between controller runs. Zero is no limit.
+- name: max-internal-timer-delay
+  default: 0s
+  usage: Maximum internal timer value across the entire agent. Use in test environments
+    to detect race conditions in agent logic.
+- name: mesh-auth-enabled
+  default: "false"
+  usage: Enable authentication processing & garbage collection (beta)
+- name: mesh-auth-gc-interval
+  default: 5m0s
+  usage: Interval in which auth entries are attempted to be garbage collected
+- name: mesh-auth-mutual-connect-timeout
+  default: 5s
+  usage: Timeout for connecting to the remote node TCP socket
+- name: mesh-auth-mutual-listener-port
+  default: "0"
+  usage: Port on which the Cilium Agent will perform mutual authentication handshakes
+    between other Agents
+- name: mesh-auth-queue-size
+  default: "1024"
+  usage: Queue size for the auth manager
+- name: mesh-auth-rotated-identities-queue-size
+  default: "1024"
+  usage: The size of the queue for signaling rotated identities.
+- name: mesh-auth-signal-backoff-duration
+  default: 1s
+  usage: Time to wait betweeen two authentication required signals in case of a cache
+    mismatch
+- name: mesh-auth-spiffe-trust-domain
+  default: spiffe.cilium
+  usage: The trust domain for the SPIFFE identity.
+- name: mesh-auth-spire-admin-socket
+  default: ""
+  usage: The path for the SPIRE admin agent Unix socket.
+- name: metrics
+  default: '[]'
+  usage: Metrics that should be enabled or disabled from the default metric list.
+    (+metric_foo to enable metric_foo, -metric_bar to disable metric_bar)
+- name: metrics-sampling-interval
+  default: 5m0s
+  usage: Set the internal metrics sampling interval
+- name: mke-cgroup-mount
+  default: ""
+  usage: Cgroup v1 net_cls mount path for MKE environments
+- name: monitor-aggregation
+  default: None
+  usage: Level of monitor aggregation for traces from the datapath
+- name: monitor-aggregation-flags
+  default: '[syn,fin,rst]'
+  usage: TCP flags that trigger monitor reports when monitor aggregation is enabled
+- name: monitor-aggregation-interval
+  default: 5s
+  usage: Monitor report interval when monitor aggregation is enabled
+- name: monitor-queue-size
+  default: "0"
+  usage: Size of the event queue when reading monitor events
+- name: mtu
+  default: "0"
+  usage: Overwrite auto-detected MTU of underlying network
+- name: multicast-enabled
+  default: "false"
+  usage: Enables multicast in Cilium
+- name: nat-map-stats-entries
+  default: "32"
+  usage: Number k top stats entries to store locally in statedb
+- name: nat-map-stats-interval
+  default: 30s
+  usage: Interval upon which nat maps are iterated for stats
+- name: node-encryption-opt-out-labels
+  default: node-role.kubernetes.io/control-plane
+  usage: Label selector for nodes which will opt-out of node-to-node encryption
+- name: node-labels
+  default: '[]'
+  usage: List of label prefixes used to determine identity of a node (used only when
+    enable-node-selector-labels is enabled)
+- name: node-port-acceleration
+  default: disabled
+  usage: BPF NodePort acceleration via XDP ("native", "disabled")
+- name: node-port-bind-protection
+  default: "true"
+  usage: Reject application bind(2) requests to service ports in the NodePort range
+- name: node-port-range
+  default: '[30000,32767]'
+  usage: Set the min/max NodePort port range
+- name: nodeport-addresses
+  default: '[]'
+  usage: A whitelist of CIDRs to limit which IPs are used for NodePort. If not set,
+    primary IPv4 and/or IPv6 address of each native device is used.
+- name: only-masquerade-default-pool
+  default: "false"
+  usage: When using multi-pool IPAM, only masquerade flows from the default IP pool.
+    This will preserve source IPs for pods from non-default IP pools. Useful when
+    combining multi-pool IPAM with BGP control plane. This option must be combined
+    with enable-bpf-masquerade.
+- name: packetization-layer-pmtud-mode
+  default: blackhole
+  usage: Enables kernel packetization layer path mtu discovery on Pod netns (if empty
+    will use host setting)
+- name: policy-accounting
+  default: "true"
+  usage: Maintain packet and byte counters for every policy entry
+- name: policy-audit-mode
+  default: "false"
+  usage: Enable policy audit (non-drop) mode
+- name: policy-cidr-match-mode
+  default: '[]'
+  usage: 'The entities that can be selected by CIDR policy. Supported values: ''nodes'''
+- name: policy-default-local-cluster
+  default: "true"
+  usage: Control whether policy rules assume by default the local cluster if not explicitly
+    selected
+- name: policy-deny-response
+  default: none
+  usage: 'How to handle pod egress traffic dropped by network policy: either drop
+    the packet ("none") or reject with an ICMP Destination Unreachable ("icmp")'
+- name: policy-queue-size
+  default: "100"
+  usage: Size of queue for policy-related events
+- name: policy-secrets-namespace
+  default: ""
+  usage: PolicySecretsNamesapce is the namespace having secrets used in CNP and CCNP
+- name: policy-secrets-only-from-secrets-namespace
+  default: "false"
+  usage: Configures the agent to only read policy Secrets from the policy-secrets-namespace
+- name: policy-trigger-interval
+  default: 1s
+  usage: Time between triggers of policy updates (regenerations for all endpoints)
+- name: pprof
+  default: "false"
+  usage: Enable serving pprof debugging API
+- name: pprof-address
+  default: localhost
+  usage: Address that pprof listens on
+- name: pprof-block-profile-rate
+  default: "0"
+  usage: 'Enable goroutine blocking profiling and set the rate of sampled events in
+    nanoseconds (set to 1 to sample all events [warning: performance overhead])'
+- name: pprof-mutex-profile-fraction
+  default: "0"
+  usage: Enable mutex contention profiling and set the fraction of sampled events
+    (set to 1 to sample all events)
+- name: pprof-port
+  default: "6060"
+  usage: Port that pprof listens on
+- name: preallocate-bpf-maps
+  default: "true"
+  usage: Enable BPF map pre-allocation
+- name: prefer-ipv6
+  default: "false"
+  usage: Prefer IPv6 addresses over IPv4 when both are available
+- name: prepend-iptables-chains
+  default: "true"
+  usage: Prepend custom iptables chains instead of appending
+- name: procfs
+  default: /proc
+  usage: Path to the host's proc filesystem mount
+- name: prometheus-serve-addr
+  default: ""
+  usage: IP:Port on which to serve prometheus metrics (pass ":Port" to bind on all
+    interfaces, "" is off)
+- name: proxy-admin-port
+  default: "0"
+  usage: Port to serve Envoy admin interface on.
+- name: proxy-cluster-max-connections
+  default: "1024"
+  usage: Maximum number of connections on Envoy clusters
+- name: proxy-cluster-max-requests
+  default: "1024"
+  usage: Maximum number of requests on Envoy clusters
+- name: proxy-connect-timeout
+  default: "2"
+  usage: Time after which a TCP connect attempt is considered failed unless completed
+    (in seconds)
+- name: proxy-gid
+  default: "1337"
+  usage: Group ID for proxy control plane sockets.
+- name: proxy-idle-timeout-seconds
+  default: "60"
+  usage: Set Envoy upstream HTTP idle connection timeout in seconds. Does not apply
+    to connections with pending requests.
+- name: proxy-initial-fetch-timeout
+  default: "30"
+  usage: Time after which an xDS stream is considered timed out (in seconds)
+- name: proxy-max-active-downstream-connections
+  default: "50000"
+  usage: Set Envoy HTTP option max_active_downstream_connections
+- name: proxy-max-concurrent-retries
+  default: "128"
+  usage: Maximum number of concurrent retries on Envoy clusters
+- name: proxy-max-connection-duration-seconds
+  default: "0"
+  usage: Set Envoy HTTP option max_connection_duration seconds. Default 0 (disable)
+- name: proxy-max-requests-per-connection
+  default: "0"
+  usage: Set Envoy HTTP option max_requests_per_connection. Default 0 (disable)
+- name: proxy-portrange-max
+  default: "20000"
+  usage: End of port range that is used to allocate ports for L7 proxies.
+- name: proxy-portrange-min
+  default: "10000"
+  usage: Start of port range that is used to allocate ports for L7 proxies.
+- name: proxy-prometheus-port
+  default: "0"
+  usage: Port to serve Envoy metrics on. Default 0 (disabled).
+- name: proxy-use-original-source-address
+  default: "true"
+  usage: Controls if Cilium's Envoy BPF metadata listener filter for L7 policy enforcement
+    redirects should be configured to use original source address when extracting
+    the metadata (doesn't affect Ingress/Gateway API).
+- name: proxy-xff-num-trusted-hops-egress
+  default: "0"
+  usage: Number of trusted hops regarding the x-forwarded-for and related HTTP headers
+    for the egress L7 policy enforcement Envoy listeners.
+- name: proxy-xff-num-trusted-hops-ingress
+  default: "0"
+  usage: Number of trusted hops regarding the x-forwarded-for and related HTTP headers
+    for the ingress L7 policy enforcement Envoy listeners.
+- name: read-cni-conf
+  default: ""
+  usage: CNI configuration file to use as a source for --write-cni-conf-when-ready.
+    If not supplied, a suitable one will be generated.
+- name: restore
+  default: "true"
+  usage: Restores state, if possible, from previous daemon
+- name: restored-proxy-ports-age-limit
+  default: "15"
+  usage: Time after which a restored proxy ports file is considered stale (in minutes)
+- name: route-metric
+  default: "0"
+  usage: Overwrite the metric used by cilium when adding routes to its 'cilium_host'
+    device
+- name: routing-mode
+  default: tunnel
+  usage: Routing mode ("native" or "tunnel")
+- name: service-no-backend-response
+  default: reject
+  usage: Response to traffic for a service without backends
+- name: shell-sock-path
+  default: /var/run/cilium/shell.sock
+  usage: Path to the shell UNIX socket
+- name: socket-path
+  default: /var/run/cilium/cilium.sock
+  usage: Sets daemon's socket path to listen for connections
+- name: srv6-encap-mode
+  default: reduced
+  usage: Encapsulation mode for SRv6 ("srh" or "reduced")
+- name: standalone-dns-proxy-server-port
+  default: "10095"
+  usage: Global port on which the gRPC server for standalone DNS proxy should listen
+- name: state-dir
+  default: /var/run/cilium
+  usage: Directory path to store runtime state
+- name: static-cnp-path
+  default: ""
+  usage: Directory path to watch and load static cilium network policy yaml files.
+- name: status-collector-failure-threshold
+  default: 1m0s
+  usage: The duration after which a probe is considered failed
+- name: status-collector-interval
+  default: 5s
+  usage: The interval between probe invocations
+- name: status-collector-probe-check-timeout
+  default: 5m0s
+  usage: The timeout after which all probes should have finished at least once
+- name: status-collector-stackdump-path
+  default: /run/cilium/state/agent.stack.gz
+  usage: The path where probe stackdumps should be written to
+- name: status-collector-warning-threshold
+  default: 15s
+  usage: The duration after which a probe is declared as stale
+- name: subnet-topology
+  default: ""
+  usage: Comma and/or semicolon separated list of subnets in CIDR notation representing
+    the subnet topology.
+- name: tofqdns-dns-reject-response-code
+  default: refused
+  usage: DNS response code for rejecting DNS requests, available options are '[nameError
+    refused]'
+- name: tofqdns-enable-dns-compression
+  default: "true"
+  usage: Allow the DNS proxy to compress responses to endpoints that are larger than
+    512 Bytes or the EDNS0 option, if present
+- name: tofqdns-endpoint-max-ip-per-hostname
+  default: "1000"
+  usage: Maximum number of IPs to maintain per FQDN name for each endpoint
+- name: tofqdns-idle-connection-grace-period
+  default: 0s
+  usage: Time during which idle but previously active connections with expired DNS
+    lookups are still considered alive (default 0s)
+- name: tofqdns-max-deferred-connection-deletes
+  default: "10000"
+  usage: Maximum number of IPs to retain for expired DNS lookups with still-active
+    connections
+- name: tofqdns-min-ttl
+  default: "0"
+  usage: The minimum time, in seconds, to use DNS data for toFQDNs policies
+- name: tofqdns-pre-cache
+  default: ""
+  usage: DNS cache data at this path is preloaded on agent startup
+- name: tofqdns-preallocate-identities
+  default: "true"
+  usage: Preallocate identities for ToFQDN selectors. This reduces proxied DNS response
+    latency. Disable if you have many ToFQDN selectors.
+- name: tofqdns-proxy-port
+  default: "0"
+  usage: Global port on which the in-agent DNS proxy should listen. Default 0 is a
+    OS-assigned port.
+- name: tofqdns-proxy-response-max-delay
+  default: 100ms
+  usage: The maximum time the DNS proxy holds an allowed DNS response before sending
+    it along. Responses are sent as soon as the datapath is updated with the new IP
+    information.
+- name: trace-payloadlen
+  default: "128"
+  usage: Length of payload to capture when tracing native packets.
+- name: trace-payloadlen-overlay
+  default: "192"
+  usage: Length of payload to capture when tracing overlay packets.
+- name: trace-sock
+  default: "true"
+  usage: Enable tracing for socket-based LB
+- name: tunnel-port
+  default: "0"
+  usage: Tunnel port (default 8472 for "vxlan" and 6081 for "geneve")
+- name: tunnel-protocol
+  default: vxlan
+  usage: Encapsulation protocol to use for the overlay ("vxlan" or "geneve")
+- name: tunnel-source-port-range
+  default: 0-0
+  usage: Tunnel source port range hint (default 0-0)
+- name: underlay-protocol
+  default: auto
+  usage: IP family for the underlay ("ipv4", "ipv6", or "auto")
+- name: use-cilium-internal-ip-for-ipsec
+  default: "false"
+  usage: Use the CiliumInternalIPs (vs. NodeInternalIPs) for IPsec encapsulation
+- name: use-full-tls-context
+  default: "false"
+  usage: If enabled, persist ca.crt keys into the Envoy config even in a terminatingTLS
+    block on an L7 Cilium Policy. This is to enable compatibility with previously
+    buggy behaviour. This flag is deprecated and will be removed in a future release.
+- name: version
+  default: "false"
+  usage: Print version information
+- name: vlan-bpf-bypass
+  default: '[]'
+  usage: List of explicitly allowed VLAN IDs, '0' id will allow all VLAN IDs
+- name: vtep-cidr
+  default: '[]'
+  usage: List of VTEP CIDRs that will be routed towards VTEPs for traffic cluster
+    egress
+- name: vtep-endpoint
+  default: '[]'
+  usage: List of VTEP IP addresses
+- name: vtep-mac
+  default: '[]'
+  usage: List of VTEP MAC addresses for forwarding traffic outside the cluster
+- name: vtep-mask
+  default: 255.255.255.0
+  usage: VTEP CIDR Mask for all VTEP CIDRs
+- name: vtep-sync-interval
+  default: 1m0s
+  usage: Interval for VTEP sync
+- name: wireguard-persistent-keepalive
+  default: 0s
+  usage: The Wireguard keepalive interval as a Go duration string
+- name: wireguard-track-all-ips-fallback
+  default: "false"
+  usage: Force WireGuard to track all IPs
+- name: write-cni-conf-when-ready
+  default: ""
+  usage: Write the CNI configuration to the specified path when agent is ready
+- name: ztunnel-endpoint-event-channel-buffer-size
+  default: "1"
+  usage: Buffer size for the ztunnel endpoint event channel
