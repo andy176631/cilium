@@ -6,21 +6,63 @@ package cmdref
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
+	"github.com/spf13/pflag"
+	"go.yaml.in/yaml/v2"
 )
 
 func NewCmd(parentCmd *cobra.Command) *cobra.Command {
-	return &cobra.Command{
+	var format string
+	cmd := &cobra.Command{
 		Use:    "cmdref [output directory]",
 		Short:  fmt.Sprintf("Generate command reference for %s to given output directory", parentCmd.Name()),
 		Args:   cobra.ExactArgs(1),
 		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
+
+			if format == "flags-yaml" {
+				if err := genFlagNameYAML(parentCmd, args[0]); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				return
+			}
 			genMarkdown(parentCmd, args[0])
 		},
 	}
+
+	cmd.Flags().StringVar(&format, "format", "markdown",
+		"output format (markdown|flags-yaml)")
+
+	return cmd
+}
+
+type FlagEntry struct {
+	Name    string `yaml:"name"`
+	Default string `yaml:"default"`
+	Usage   string `yaml:"usage"`
+}
+
+func genFlagNameYAML(cmd *cobra.Command, dir string) error {
+
+	var flags []FlagEntry
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		flags = append(flags, FlagEntry{
+			Name:    f.Name,
+			Default: f.DefValue,
+			Usage:   f.Usage,
+		})
+	})
+
+	data, err := yaml.Marshal(flags)
+	if err != nil {
+		return err
+	}
+	filePath := filepath.Join(dir, cmd.Name()+"_flags.yaml")
+	return os.WriteFile(filePath, data, 0644)
 }
 
 func genMarkdown(parentCmd *cobra.Command, cmdRefDir string) {

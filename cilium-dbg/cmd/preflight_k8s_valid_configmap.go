@@ -4,19 +4,23 @@
 package cmd
 
 import (
+	"embed"
+	_ "embed"
 	"fmt"
-	"os"
+	"path"
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 
-	daemonCmd "github.com/cilium/cilium/daemon/cmd"
-	operatorCmd "github.com/cilium/cilium/operator/cmd"
-	"github.com/cilium/cilium/pkg/hive"
+	"github.com/spf13/cobra"
+
+	"github.com/cilium/cilium/pkg/cmdref"
 	"github.com/cilium/cilium/pkg/option"
 )
+
+//go:embed assets/*.yaml
+var cmdrefFlagsFS embed.FS
 
 func validateConfigmapCmd() *cobra.Command {
 	var configMapDir string
@@ -39,30 +43,60 @@ error is printed and the command exits with a non-zero status code.`,
 	return cmd
 }
 
-func validateUnrecognizedKeys(configMapDir string) error {
-	var err error
-	var cm map[string]any
-	dh := hive.New(daemonCmd.Agent)
-	oh := hive.New(operatorCmd.Operator())
-	recognizedKeys := make(map[string]struct{})
+func loadCmdRefFlagNames() (map[string]struct{}, error) {
+	const dir = "assets"
 
-	if _, err := os.Stat(configMapDir); os.IsNotExist(err) {
-		return fmt.Errorf("non-existent configuration directory %s", configMapDir)
-	}
-	if cm, err = option.ReadDirConfig(log, configMapDir); err != nil {
-		return err
+	files, err := cmdrefFlagsFS.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("read dir %s: %w", dir, err)
 	}
 
-	daemonCmd.InitGlobalFlags(log, &cobra.Command{}, dh.Viper())
-	operatorCmd.InitGlobalFlags(log, &cobra.Command{}, oh.Viper())
+	flagNames := make(map[string]struct{}, 0)
 
-	for _, src := range []*viper.Viper{dh.Viper(), oh.Viper()} {
-		for _, key := range src.AllKeys() {
-			recognizedKeys[key] = struct{}{}
+	for _, e := range files {
+		filePath := path.Join(dir, e.Name())
+		flags, err := readFlagEntries(filePath)
+		if err != nil {
+			return nil, err // 已經帶 context
+		}
+		for _, f := range flags {
+			if f.Name == "" {
+				return nil, fmt.Errorf("empty flag name in %s", filePath)
+			}
+			flagNames[f.Name] = struct{}{}
 		}
 	}
 
+	return flagNames, nil
+}
+
+func readFlagEntries(filePath string) ([]cmdref.FlagEntry, error) {
+	data, err := cmdrefFlagsFS.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("read %s: %w", filePath, err)
+	}
+
+	var flags []cmdref.FlagEntry
+	if err := yaml.Unmarshal(data, &flags); err != nil {
+		return nil, fmt.Errorf("unmarshal %s: %w", filePath, err)
+	}
+
+	return flags, nil
+}
+
+func validateUnrecognizedKeys(configMapDir string) error {
+	var err error
+	var recognizedKeys map[string]struct{}
+	var cm map[string]any
 	var unrecognized []string
+
+	if cm, err = option.ReadDirConfig(log, configMapDir); err != nil {
+		return err
+	}
+	if recognizedKeys, err = loadCmdRefFlagNames(); err != nil {
+		return err
+	}
+
 	for k := range cm {
 		if _, ok := recognizedKeys[k]; !ok {
 			unrecognized = append(unrecognized, k)

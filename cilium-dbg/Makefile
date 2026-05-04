@@ -13,18 +13,24 @@ include ${ROOT_DIR}/../Makefile.defs
 
 TARGET := cilium-dbg
 TARGET_OLD := cilium
+CMDREF_FLAGS_SRC_DIR := $(ROOT_DIR)/Documentation/cmdref/flags
+CMDREF_FLAGS_OUT_DIR := cmd/assets
+CMDREF_FLAG_FILES := $(notdir $(wildcard $(CMDREF_FLAGS_SRC_DIR)/*.yaml))
+CMDREF_FLAG_TARGETS := $(addprefix $(CMDREF_FLAGS_OUT_DIR)/, $(CMDREF_FLAG_FILES))
+$(CMDREF_FLAGS_OUT_DIR)/%.yaml: $(CMDREF_FLAGS_SRC_DIR)/%.yaml
+	@cp $< $@
 
 .PHONY: all $(TARGET) clean install
 
 all: $(TARGET)
 
-$(TARGET):
+$(TARGET): $(CMDREF_FLAG_TARGETS)
 	@$(ECHO_GO)
 	$(QUIET)$(GO_BUILD) -o $@
 
 clean:
 	@$(ECHO_CLEAN)
-	-$(QUIET)rm -f $(TARGET)
+	-$(QUIET)rm -f $(TARGET) $(CMDREF_FLAG_TARGETS)
 	$(QUIET)$(GO_CLEAN)
 
 install: install-binary install-bash-completion-only

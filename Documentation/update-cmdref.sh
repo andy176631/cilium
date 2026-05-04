@@ -25,3 +25,13 @@ generators=(
 for g in "${generators[@]}" ; do
     ${source_dir}/${g} "${cmdref_dir}"
 done
+
+mkdir -p "${cmdref_dir}/flags"
+cmdflag_generators=(
+    "daemon/cilium-agent cmdref --format=flags-yaml"
+    "operator/cilium-operator cmdref --format=flags-yaml"
+)
+
+for g in "${cmdflag_generators[@]}" ; do
+    ${source_dir}/${g} "${cmdref_dir}/flags"
+done
