@@ -19,8 +19,8 @@ import (
 	"github.com/cilium/cilium/pkg/option"
 )
 
-//go:embed assets/*.yaml
-var cmdrefFlagsFS embed.FS
+//go:embed assets
+var flagDefsFS embed.FS
 
 func validateConfigmapCmd() *cobra.Command {
 	var configMapDir string
@@ -43,21 +43,22 @@ error is printed and the command exits with a non-zero status code.`,
 	return cmd
 }
 
-func loadCmdRefFlagNames() (map[string]struct{}, error) {
+func loadCmdFlagNames() (map[string]struct{}, error) {
 	const dir = "assets"
+	flagNames := make(map[string]struct{}, 0)
 
-	files, err := cmdrefFlagsFS.ReadDir(dir)
+	files, err := flagDefsFS.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("read dir %s: %w", dir, err)
 	}
-
-	flagNames := make(map[string]struct{}, 0)
-
 	for _, e := range files {
+		if path.Ext(e.Name()) != ".yaml" {
+			continue
+		}
 		filePath := path.Join(dir, e.Name())
 		flags, err := readFlagEntries(filePath)
 		if err != nil {
-			return nil, err // 已經帶 context
+			return nil, err
 		}
 		for _, f := range flags {
 			if f.Name == "" {
@@ -71,7 +72,7 @@ func loadCmdRefFlagNames() (map[string]struct{}, error) {
 }
 
 func readFlagEntries(filePath string) ([]cmdref.FlagEntry, error) {
-	data, err := cmdrefFlagsFS.ReadFile(filePath)
+	data, err := flagDefsFS.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", filePath, err)
 	}
@@ -93,10 +94,10 @@ func validateUnrecognizedKeys(configMapDir string) error {
 	if cm, err = option.ReadDirConfig(log, configMapDir); err != nil {
 		return err
 	}
-	if recognizedKeys, err = loadCmdRefFlagNames(); err != nil {
+	if recognizedKeys, err = loadCmdFlagNames(); err != nil {
 		return err
 	}
-
+	fmt.Printf("recognizedKeys: %+v\n", recognizedKeys)
 	for k := range cm {
 		if _, ok := recognizedKeys[k]; !ok {
 			unrecognized = append(unrecognized, k)
